@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Dataset Generator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the app */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple spinner animation */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #3b82f6; /* blue-500 */
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Ensure inputs are dark-mode friendly */
+        input[type="text"], textarea {
+            background-color: #374151; /* gray-700 */
+            color: #ffffff;
+            border: 1px solid #4b5563; /* gray-600 */
+            border-radius: 0.375rem; /* rounded-md */
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: #3b82f6; /* blue-500 */
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        /* Custom scrollbar for table */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #1f2937; /* gray-800 */
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #4b5563; /* gray-600 */
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 antialiased min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+
+        <!-- ===== SCREEN 1: GET TITLE ===== -->
+        <div id="title-screen" class="max-w-lg mx-auto mt-20 p-8 bg-gray-800 rounded-xl shadow-2xl">
+            <h1 class="text-3xl font-bold text-center mb-6 text-white">AI Dataset Generator</h1>
+            <p class="text-gray-400 text-center mb-6">What's the title of your new dataset?</p>
+            <form id="title-form" class="space-y-4">
+                <div>
+                    <label for="dataset-title-input" class="block text-sm font-medium text-gray-300 mb-1">Dataset Title</label>
+                    <input type="text" id="dataset-title-input" class="w-full p-3" placeholder="e.g., 'Career Paths' or 'Project Plans'" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-200">
+                    Start Building
+                </button>
+            </form>
+        </div>
+
+        <!-- ===== SCREEN 2: MAIN APP ===== -->
+        <div id="app-screen" class="hidden">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-8 gap-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">Dataset Generator</h1>
+                    <h2 id="dataset-title-header" class="text-2xl text-blue-400"></h2>
+                </div>
+            </div>
+
+            <!-- Generator Form -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-2xl mb-8">
+                <h3 class="text-2xl font-semibold mb-4 text-white">Add New Career Entry</h3>
+                <p class="text-gray-400 mb-6">Describe the top-level entry (e.g., a career) and the rules for generating its nested data (skills, roadmaps, etc.).</p>
+                <form id="generator-form" class="space-y-4">
+                    <div>
+                        <label for="career-prompt" class="block text-sm font-medium text-gray-300 mb-1">Career Topic</label>
+                        <input type="text" id="career-prompt" class="w-full p-3" placeholder="e.g., 'Software Engineer' or 'UX Designer'" required>
+                    </div>
+                    <div>
+                        <label for="constraints-prompt" class="block text-sm font-medium text-gray-300 mb-1">Generation Constraints</label>
+                        <textarea id="constraints-prompt" rows="4" class="w-full p-3" placeholder="e.g., 'Generate 3-5 skills. For each skill, create 2 roadmaps. For each roadmap, list 4-6 tasks. For each task, provide a 3-step order.'" required></textarea>
+                    </div>
+                    
+                    <!-- Error Message Box -->
+                    <div id="error-box" class="hidden p-4 bg-red-800 border border-red-700 text-red-100 rounded-lg">
+                        <span id="error-message"></span>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-4">
+                        <!-- Loading Spinner -->
+                        <div id="loading-spinner" class="spinner hidden" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <button type="submit" id="generate-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-200">
+                            Generate and Add
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Data Table Section -->
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-semibold text-white">Generated Dataset</h3>
+                    <button id="export-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-lg shadow-lg transition duration-200">
+                        Export to CSV
+                    </button>
+                </div>
+
+                <!-- Table Container -->
+                <div class="table-container bg-gray-800 rounded-xl shadow-2xl overflow-auto" style="max-height: 60vh;">
+                    <table class="w-full min-w-max text-left text-gray-300">
+                        <thead class="sticky top-0 bg-gray-700 text-gray-100 uppercase text-sm">
+                            <tr>
+                                <th class="p-4">Career</th>
+                                <th class="p-4">Skill</th>
+                                <th class="p-4">Roadmap</th>
+                                <th class="p-4">Task</th>
+                                <th class="p-4">Order</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="divide-y divide-gray-700">
+                            <!-- Empty State -->
+                            <tr id="empty-row">
+                                <td colspan="5" class="p-8 text-center text-gray-500">
+                                    Your dataset is empty. Use the form above to generate and add data.
+                                </td>
+                            </tr>
+                            <!-- Data rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> <!-- /#app-screen -->
+    </div> <!-- /max-w-7xl -->
+
+
+    <script type="module">
+        // === STATE ===
+        let datasetTitle = null;
+        let fullData = []; // Stores the raw, nested JSON objects
+        let tableData = []; // Stores the flattened data for table/CSV
+        let isLoading = false;
+        
+        // === GEMINI API Configuration ===
+        const apiKey = ""; // Leave as-is, Canvas will handle auth.
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        // This schema is CRITICAL for getting reliable JSON output
+        const generationSchema = {
+            "type": "OBJECT",
+            "properties": {
+                "career": { 
+                    "type": "STRING", 
+                    "description": "The name of the career, e.g., 'Software Engineer'" 
+                },
+                "skills": {
+                    "type": "ARRAY",
+                    "description": "A list of skills for this career.",
+                    "items": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "skill": { 
+                                "type": "STRING", 
+                                "description": "The name of a specific skill, e.g., 'Data Structures'" 
+                            },
+                            "roadmaps": {
+                                "type": "ARRAY",
+                                "description": "A list of learning roadmaps for this skill.",
+                                "items": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "roadmap": { 
+                                            "type": "STRING", 
+                                            "description": "The name of a roadmap, e.g., 'Advanced Algorithms'" 
+                                        },
+                                        "tasks": {
+                                            "type": "ARRAY",
+                                            "description": "A list of tasks for this roadmap.",
+                                            "items": {
+                                                "type": "OBJECT",
+                                                "properties": {
+                                                    "task": { 
+                                                        "type": "STRING", 
+                                                        "description": "A specific task, e.g., 'Implement a B-Tree'" 
+                                                    },
+                                                    "orders": {
+                                                        "type": "ARRAY",
+                                                        "description": "A list of steps (orders) to complete the task.",
+                                                        "items": { "type": "STRING" }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "required": ["career", "skills"]
+        };
+
+
+        // === SELECTORS ===
+        const titleScreen = document.getElementById('title-screen');
+        const appScreen = document.getElementById('app-screen');
+        const titleForm = document.getElementById('title-form');
+        const titleInput = document.getElementById('dataset-title-input');
+        const datasetTitleHeader = document.getElementById('dataset-title-header');
+        
+        const generatorForm = document.getElementById('generator-form');
+        const careerInput = document.getElementById('career-prompt');
+        const constraintsInput = document.getElementById('constraints-prompt');
+        const generateBtn = document.getElementById('generate-btn');
+        
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const errorBox = document.getElementById('error-box');
+        const errorMessage = document.getElementById('error-message');
+        
+        const tableBody = document.getElementById('data-table-body');
+        const emptyRow = document.getElementById('empty-row');
+        const exportBtn = document.getElementById('export-btn');
+
+        // === EVENT LISTENERS ===
+        titleForm.addEventListener('submit', handleTitleSubmit);
+        generatorForm.addEventListener('submit', handleGenerateSubmit);
+        exportBtn.addEventListener('click', handleExportCSV);
+
+        // === FUNCTIONS ===
+
+        /**
+         * Kicks off the app by setting the title and switching screens.
+         */
+        function handleTitleSubmit(e) {
+            e.preventDefault();
+            const title = titleInput.value.trim();
+            if (title) {
+                datasetTitle = title;
+                datasetTitleHeader.textContent = `Dataset: ${title}`;
+                titleScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Handles the "Generate" button click, validates input, and starts API call.
+         */
+        function handleGenerateSubmit(e) {
+            e.preventDefault();
+            hideError();
+            
+            const careerPrompt = careerInput.value.trim();
+            const constraintsPrompt = constraintsInput.value.trim();
+
+            if (!careerPrompt || !constraintsPrompt) {
+                showError("Please fill in both 'Career Topic' and 'Generation Constraints'.");
+                return;
+            }
+
+            callGeminiAPI(careerPrompt, constraintsPrompt);
+        }
+
+        /**
+         * Calls the Gemini API with the user's prompts and the JSON schema.
+         */
+        async function callGeminiAPI(career, constraints) {
+            setLoading(true);
+
+            // Construct the user prompt for the LLM
+            const userQuery = `Generate a single JSON object for the career topic "${career}" with the following constraints: "${constraints}". You must follow the provided JSON schema exactly. Do not include any explanatory text, just the raw JSON object.`;
+            
+            const payload = {
+                contents: [{ 
+                    parts: [{ text: userQuery }] 
+                }],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: generationSchema,
+                    temperature: 0.7,
+                }
+            };
+
+            try {
+                // Use exponential backoff for retries
+                const result = await fetchWithBackoff(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!result.candidates || !result.candidates[0].content?.parts?.[0]?.text) {
+                    throw new Error("Invalid response structure from API.");
+                }
+
+                const jsonText = result.candidates[0].content.parts[0].text;
+                const newDataObject = JSON.parse(jsonText);
+
+                // Add to our state
+                fullData.push(newDataObject);
+                const newRows = flattenData(newDataObject);
+                tableData.push(...newRows);
+
+                // Update UI
+                renderTable();
+                generatorForm.reset();
+
+            } catch (error) {
+                console.error("Error generating data:", error);
+                showError(`Failed to generate data: ${error.message}. Please check console and try again.`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        /**
+         * Flattens the nested JSON object from the API into an array of row objects.
+         * This is the core logic for matching your 1-to-many relationship.
+         */
+        function flattenData(careerObject) {
+            const rows = [];
+            const careerName = careerObject.career || "N/A";
+
+            if (!careerObject.skills || careerObject.skills.length === 0) {
+                rows.push({ career: careerName, skill: "N/A", roadmap: "N/A", task: "N/A", order: "N/A" });
+                return rows;
+            }
+
+            careerObject.skills.forEach(skill => {
+                const skillName = skill.skill || "N/A";
+                
+                if (!skill.roadmaps || skill.roadmaps.length === 0) {
+                    rows.push({ career: careerName, skill: skillName, roadmap: "N/A", task: "N/A", order: "N/A" });
+                    return; // continue to next skill
+                }
+
+                skill.roadmaps.forEach(roadmap => {
+                    const roadmapName = roadmap.roadmap || "N/A";
+                    
+                    if (!roadmap.tasks || roadmap.tasks.length === 0) {
+                        rows.push({ career: careerName, skill: skillName, roadmap: roadmapName, task: "N/A", order: "N/A" });
+                        return; // continue to next roadmap
+                    }
+
+                    roadmap.tasks.forEach(task => {
+                        const taskName = task.task || "N/A";
+                        
+                        if (!task.orders || task.orders.length === 0) {
+                            rows.push({ career: careerName, skill: skillName, roadmap: roadmapName, task: taskName, order: "N/A" });
+                            return; // continue to next task
+                        }
+
+                        task.orders.forEach(order => {
+                            const orderName = order || "N/A";
+                            rows.push({
+                                career: careerName,
+                                skill: skillName,
+                                roadmap: roadmapName,
+                                task: taskName,
+                                order: orderName
+                            });
+                        });
+                    });
+                });
+            });
+            return rows;
+        }
+
+        /**
+         * Re-draws the HTML table based on the current `tableData` state.
+         */
+        function renderTable() {
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (tableData.length === 0) {
+                tableBody.appendChild(emptyRow);
+                return;
+            }
+            
+            if(emptyRow.parentNode) {
+                emptyRow.parentNode.removeChild(emptyRow);
+            }
+
+            tableData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-700 transition-colors duration-150";
+                tr.innerHTML = `
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.career)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.skill)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.roadmap)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.task)}</td>
+                    <td class="p-4 whitespace-normal min-w-[200px]">${escapeHTML(row.order)}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        /**
+         * Creates and triggers a download for a CSV file of the `tableData`.
+         */
+        function handleExportCSV() {
+            if (tableData.length === 0) {
+                showError("There is no data to export.");
+                return;
+            }
+
+            const headers = ["Career", "Skill", "Roadmap", "Task", "Order"];
+            const csvRows = [headers.join(",")]; // Add header row
+
+            // Function to escape CSV values
+            const escapeCSV = (val) => {
+                if (val === null || val === undefined) val = "";
+                let str = String(val);
+                // If value contains a comma, a newline, or a double-quote, wrap it in double-quotes
+                if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+                    // Escape existing double-quotes by doubling them
+                    str = `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+
+            // Convert each row object to a CSV string
+            tableData.forEach(row => {
+                const values = [
+                    escapeCSV(row.career),
+                    escapeCSV(row.skill),
+                    escapeCSV(row.roadmap),
+                    escapeCSV(row.task),
+                    escapeCSV(row.order)
+                ];
+                csvRows.push(values.join(","));
+            });
+
+            const csvContent = csvRows.join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            
+            // Sanitize title for filename
+            const filename = (datasetTitle || "dataset").replace(/[^a-z0-9_]/gi, '_') + '.csv';
+
+            // Create a link and trigger the download
+            const link = document.createElement('a');
+            if (link.download !== undefined) { // Feature detection
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // === UTILITY FUNCTIONS ===
+
+        /**
+         * Sets the loading state for the UI.
+         */
+        function setLoading(isLoading) {
+            if (isLoading) {
+                generateBtn.disabled = true;
+                generateBtn.classList.add("opacity-50", "cursor-not-allowed");
+                loadingSpinner.classList.remove("hidden");
+            } else {
+                generateBtn.disabled = false;
+                generateBtn.classList.remove("opacity-50", "cursor-not-allowed");
+                loadingSpinner.classList.add("hidden");
+            }
+        }
+
+        /**
+         * Shows an error message in the UI.
+         */
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorBox.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the error message box.
+         */
+        function hideError() {
+            errorBox.classList.add('hidden');
+            errorMessage.textContent = '';
+        }
+
+        /**
+         * Simple HTML escaper to prevent XSS.
+         */
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return "";
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+        
+        /**
+         * Fetches with exponential backoff.
+         */
+        async function fetchWithBackoff(url, options, retries = 3, delay = 1000) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    if (response.status === 429 && retries > 0) { // Too Many Requests
+                        await new Promise(res => setTimeout(res, delay));
+                        return fetchWithBackoff(url, options, retries - 1, delay * 2);
+                    }
+                    throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+                }
+                return await response.json();
+            } catch (error) {
+                if (retries > 0) {
+                    await new Promise(res => setTimeout(res, delay));
+                    return fetchWithBackoff(url, options, retries - 1, delay * 2);
+                }
+                throw error;
+            }
+        }
+
+    </script>
+</body>
+</html>

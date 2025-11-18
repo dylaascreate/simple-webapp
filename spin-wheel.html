@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin the Wheel Pro</title>
+    <!-- Load Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Load Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        /* A simple CSS transition for the wheel's rotation */
+        #wheel-canvas {
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        
+        /* Set a max-height for the item list */
+        #item-list {
+            max-height: 160px; /* 10rem */
+        }
+        
+        /* Set a max-height for the winner history list */
+        #winner-history-list {
+            max-height: 120px; /* 7.5rem */
+        }
+        
+        /* Gradient Background */
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            /* Make body a flex column to push footer down */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* Make the main content area grow to fill space */
+        main {
+            flex: 1 1 auto;
+        }
+        
+        /* Custom styles for the remove button */
+        .remove-item-btn {
+            font-size: 1.2rem;
+            line-height: 1;
+            font-weight: bold;
+            color: var(--bs-danger);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        .remove-item-btn:hover {
+            opacity: 1;
+        }
+        
+        /* Animation for the result text */
+        .pop-in {
+            animation: popIn 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            70% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        
+        /* Style for the new pointer */
+        .wheel-pointer {
+            font-size: 3rem; /* 48px */
+            color: #dc3545; /* Bootstrap danger red */
+            z-index: 10;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+            margin-top: -24px; /* Move up to overlap wheel */
+        }
+
+    </style>
+</head>
+<body class="d-flex flex-column vh-100">
+
+    <!-- 1. Navigation Bar -->
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-bullseye"></i>
+                Spin Wheel Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <!-- This now triggers the modal -->
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#myWheelsModal">My Wheels</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 2. Main Content Area -->
+    <main class="d-flex align-items-center justify-content-center py-5">
+        <div class="bg-white p-4 p-sm-5 rounded-4 shadow-lg w-100 mx-3" style="max-width: 500px;">
+            
+            <h1 class="h3 fw-bold text-center text-dark mb-4">Spin the Wheel!</h1>
+
+            <!-- Input Section -->
+            <div class="input-group mb-4">
+                <input type="text" id="item-input" placeholder="Enter an item..." class="form-control p-3">
+                <button id="add-button" class="btn btn-primary px-4 fw-semibold" title="Add item">
+                    <i class="bi bi-plus-lg"></i> Add
+                </button>
+            </div>
+
+            <!-- Wheel Section -->
+            <div class="position-relative mx-auto mb-4" style="width: 384px; height: 384px;">
+                <!-- Pointer (Using Bootstrap Icon) -->
+                <div class="position-absolute top-0 start-50 translate-middle-x wheel-pointer">
+                    <i class="bi bi-caret-down-fill"></i>
+                </div>
+                
+                <!-- Canvas for the wheel -->
+                <canvas id="wheel-canvas" width="384" height="384" class="rounded-circle shadow-inner"></canvas>
+                
+                <!-- Spin Button -->
+                <button id="spin-button" class="position-absolute top-50 start-50 translate-middle btn btn-danger text-white fw-bold text-uppercase rounded-circle border border-4 border-white shadow" style="width: 80px; height: 80px; z-index: 10;" disabled>
+                    Spin
+                </button>
+            </div>
+
+            <!-- Result Section -->
+            <div class="text-center mb-4" style="min-height: 70px;">
+                <h2 class="fs-5 fw-semibold text-secondary">The winner is:</h2>
+                <p id="result-text" class="fs-2 fw-bold text-primary mt-2">...</p>
+            </div>
+
+            <!-- Item List Section -->
+            <div>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h3 class="fs-6 fw-semibold text-secondary mb-0">Items on the wheel:</h3>
+                    <!-- Updated button group -->
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button id="save-wheel-btn" class="btn btn-outline-success py-0">Save Wheel</button>
+                        <button id="clear-all-btn" class="btn btn-outline-secondary py-0">Clear List</button>
+                    </div>
+                </div>
+                <ul id="item-list" class="list-group list-group-flush border rounded bg-light p-2 overflow-y-auto">
+                    <!-- Items will be added here by JavaScript -->
+                    <li id="empty-list-placeholder" class="list-group-item bg-transparent border-0 py-1 text-center text-muted fst-italic">
+                        No items added yet.
+                    </li>
+                </ul>
+            </div>
+
+            <!-- NEW: Winner History Section -->
+            <div class="mt-4">
+                <h3 class="fs-6 fw-semibold text-secondary mb-2">Recent Winners:</h3>
+                <ul id="winner-history-list" class="list-group list-group-flush border rounded bg-light p-2 overflow-y-auto">
+                    <li id="empty-winner-placeholder" class="list-group-item bg-transparent border-0 py-1 text-center text-muted fst-italic">
+                        No spins yet.
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </main>
+    
+    <!-- 3. Footer -->
+    <footer class="bg-dark text-white text-center p-3 mt-auto shadow-inner">
+        <div class="container">
+            <p class="mb-0">&copy; 2025 Spin Wheel Pro. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- NEW: My Wheels Modal -->
+    <div class="modal fade" id="myWheelsModal" tabindex="-1" aria-labelledby="myWheelsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="myWheelsModalLabel">My Saved Wheels</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <ul id="saved-wheels-list" class="list-group">
+                        <li id="no-saved-wheels" class="list-group-item text-muted fst-italic text-center border-0">
+                            No wheels saved.
+                        </li>
+                        <!-- Saved wheels will be populated here -->
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get DOM elements
+            const canvas = document.getElementById('wheel-canvas');
+            const ctx = canvas.getContext('2d');
+            const itemInput = document.getElementById('item-input');
+            const addButton = document.getElementById('add-button');
+            const spinButton = document.getElementById('spin-button');
+            const resultText = document.getElementById('result-text');
+            const itemList = document.getElementById('item-list');
+            const clearAllBtn = document.getElementById('clear-all-btn');
+            const emptyListPlaceholder = document.getElementById('empty-list-placeholder');
+            
+            // New History/Modal elements
+            const winnerHistoryList = document.getElementById('winner-history-list');
+            const emptyWinnerPlaceholder = document.getElementById('empty-winner-placeholder');
+            const saveWheelBtn = document.getElementById('save-wheel-btn');
+            const savedWheelsList = document.getElementById('saved-wheels-list');
+            const noSavedWheels = document.getElementById('no-saved-wheels');
+            const myWheelsModalEl = document.getElementById('myWheelsModal');
+            const myWheelsModal = new bootstrap.Modal(myWheelsModalEl);
+
+            let items = [];
+            let winnerHistory = [];
+            let savedWheels = [];
+            let currentRotation = 0; // Current rotation angle of the wheel (in degrees)
+            let isSpinning = false;
+
+            // Base colors for wheel segments
+            const colors = [
+                '#FF6B6B', '#FFD166', '#06D6A0', '#118AB2', '#073B4C',
+                '#E07A5F', '#3D405B', '#81B29A', '#F2CC8F', '#F4F1DE'
+            ];
+            
+            // --- 1. Helper Functions ---
+            
+            /**
+             * Gets a contrasting color (black or white) for a given hex color.
+             * @param {string} hexcolor - The hex color code (e.g., "#FF6B6B").
+             * @returns {string} - Returns "#ffffff" (white) or "#000000" (black).
+             */
+            function getContrastColor(hexcolor) {
+                if (hexcolor.startsWith('#')) {
+                    hexcolor = hexcolor.slice(1);
+                }
+                const r = parseInt(hexcolor.substr(0, 2), 16);
+                const g = parseInt(hexcolor.substr(2, 2), 16);
+                const b = parseInt(hexcolor.substr(4, 2), 16);
+                const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                return (yiq >= 128) ? '#000000' : '#ffffff';
+            }
+            
+            /**
+             * Updates the state of the spin button and list placeholder.
+             */
+            function updateUIState() {
+                // Enable/disable spin button
+                if (items.length < 2) {
+                    spinButton.disabled = true;
+                } else {
+                    spinButton.disabled = false;
+                }
+                
+                // Show/hide empty list placeholder
+                if (items.length === 0) {
+                    emptyListPlaceholder.style.display = 'block';
+                } else {
+                    emptyListPlaceholder.style.display = 'none';
+                }
+            }
+
+            // --- 2. Item Management Logic ---
+
+            function addItem() {
+                const value = itemInput.value.trim();
+                if (value) {
+                    addItemToList(value);
+                    itemInput.value = '';
+                }
+            }
+            
+            /**
+             * Adds an item to the 'items' array and the visual list.
+             * This is a new helper function to allow adding from storage.
+             * @param {string} value - The item to add.
+             */
+            function addItemToList(value) {
+                items.push(value);
+                
+                // Add to visual list
+                const li = document.createElement('li');
+                li.className = 'list-group-item bg-transparent border-0 py-1 d-flex justify-content-between align-items-center';
+                li.dataset.item = value; // Store value for easy removal
+                
+                const span = document.createElement('span');
+                span.textContent = value;
+                li.appendChild(span);
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '&times;'; // 'x' symbol
+                removeBtn.className = 'btn-close remove-item-btn p-0';
+                removeBtn.title = 'Remove item';
+                removeBtn.addEventListener('click', () => removeItem(value, li));
+                
+                li.appendChild(removeBtn);
+                itemList.appendChild(li);
+
+                drawWheel();
+                updateUIState();
+            }
+            
+            function removeItem(value, liElement) {
+                // Remove from items array
+                items = items.filter(item => item !== value);
+                
+                // Remove from DOM
+                itemList.removeChild(liElement);
+                
+                drawWheel();
+                updateUIState();
+            }
+            
+            function clearAllItems() {
+                items = [];
+                // Remove all li elements except the placeholder
+                while (itemList.children.length > 1) {
+                    if(itemList.lastChild.id !== 'empty-list-placeholder') {
+                        itemList.removeChild(itemList.lastChild);
+                    }
+                }
+                drawWheel();
+                updateUIState();
+            }
+
+            addButton.addEventListener('click', addItem);
+            itemInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    addItem();
+                }
+            });
+            clearAllBtn.addEventListener('click', clearAllItems);
+            saveWheelBtn.addEventListener('click', saveCurrentWheel);
+
+            // --- 3. Draw Wheel Logic ---
+
+            function drawWheel() {
+                const numItems = items.length;
+                if (numItems === 0) {
+                    drawPlaceholder();
+                    return;
+                }
+
+                const arcSize = 360 / numItems; // Size of each segment in degrees
+                const centerX = canvas.width / 2;
+                const centerY = canvas.height / 2;
+                const radius = (canvas.width / 2) - 10; // Radius with a small padding
+
+                // Clear and save context
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.save();
+                
+                // Translate to center
+                ctx.translate(centerX, centerY);
+
+                items.forEach((item, i) => {
+                    // FIX: Subtract 90 degrees (PI/2 radians) to start drawing from the top (12 o'clock)
+                    const startAngle = (i * arcSize * Math.PI / 180) - (Math.PI / 2);
+                    const endAngle = ((i + 1) * arcSize * Math.PI / 180) - (Math.PI / 2);
+                    
+                    const segmentColor = colors[i % colors.length];
+                    
+                    // 1. Draw the segment
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0); // Start from center
+                    ctx.arc(0, 0, radius, startAngle, endAngle);
+                    ctx.lineTo(0, 0);
+                    ctx.fillStyle = segmentColor; // Cycle through colors
+                    ctx.fill();
+
+                    // 2. Draw the text
+                    ctx.save();
+                    // Rotate to center of segment
+                    const textAngle = startAngle + (endAngle - startAngle) / 2;
+                    ctx.rotate(textAngle);
+                    
+                    // Use smart contrast color
+                    ctx.fillStyle = getContrastColor(segmentColor);
+                    ctx.font = 'bold 14px Arial';
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    
+                    // Truncate text if too long
+                    const maxTextWidth = radius - 20;
+                    let text = item;
+                    if (ctx.measureText(text).width > maxTextWidth) {
+                        while (ctx.measureText(text + '...').width > maxTextWidth && text.length > 1) {
+                            text = text.substring(0, text.length - 1);
+                        }
+                        text += '...';
+                    }
+                    
+                    ctx.fillText(text, radius - 10, 0); // Draw text near the edge
+                    ctx.restore();
+                });
+
+                ctx.restore(); // Restore context to original state
+            }
+            
+            function drawPlaceholder() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.beginPath();
+                ctx.arc(canvas.width / 2, canvas.height / 2, (canvas.width / 2) - 10, 0, 2 * Math.PI);
+                ctx.fillStyle = '#f8f9fa'; // Bootstrap 'bg-light' color
+                ctx.fill();
+                ctx.fillStyle = '#6c757d'; // Bootstrap 'text-secondary' color
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('Add items to build the wheel!', canvas.width / 2, canvas.height / 2);
+            }
+
+            // --- 4. Spin Logic ---
+
+            spinButton.addEventListener('click', () => {
+                if (items.length < 2 || isSpinning) {
+                    return; // Need at least 2 items to spin
+                }
+                
+                isSpinning = true;
+                spinButton.disabled = true;
+                resultText.textContent = '...';
+                resultText.classList.remove('pop-in'); // Reset animation
+
+                // Calculate a random stopping angle
+                const randomSpins = Math.floor(Math.random() * 5 + 5); // 5-10 full rotations
+                const randomStopAngle = Math.random() * 360; // Random position within a rotation
+                const totalRotation = (randomSpins * 360) + randomStopAngle;
+
+                // We add the total rotation to the *current* rotation
+                const finalRotation = currentRotation + totalRotation;
+                
+                // Apply the rotation using CSS transition
+                canvas.style.transform = `rotate(${finalRotation}deg)`;
+                
+                currentRotation = finalRotation; // Store the new final rotation
+
+                // Wait for the transition to end
+                setTimeout(() => {
+                    finishSpin(finalRotation);
+                }, 5000); // 5000ms matches the CSS transition duration
+            });
+
+            function finishSpin(finalRotation) {
+                // Calculate the winner
+                const winner = getWinner(finalRotation);
+                resultText.textContent = winner;
+                resultText.classList.add('pop-in'); // Add animation class
+                
+                addWinnerToHistory(winner); // Add to history
+                
+                isSpinning = false;
+                updateUIState(); // Re-enable spin button if items >= 2
+                
+                // Normalize rotation to prevent infinite spinning
+                // We keep the remainder so the wheel visually stays in place
+                currentRotation = finalRotation % 360;
+                canvas.style.transition = 'none'; // Disable transition
+                canvas.style.transform = `rotate(${currentRotation}deg)`; // Set to normalized angle
+                // Re-enable transition after a tiny delay
+                setTimeout(() => {
+                    canvas.style.transition = 'transform 5s cubic-bezier(0.25, 0.1, 0.25, 1)';
+                }, 10);
+            }
+
+            function getWinner(finalRotation) {
+                const numItems = items.length;
+                const arcSize = 360 / numItems;
+
+                // Normalize the final rotation (0-360)
+                const normalizedAngle = finalRotation % 360;
+                
+                // The pointer is at the top (0 degrees, or 360).
+                // We need to find which segment is at the top.
+                // We calculate the "stop" angle relative to the 0-degree pointer.
+                // A positive rotation moves segments *counter-clockwise* visually.
+                // So, we reverse the angle to find the segment index.
+                const pointerAngle = 360 - normalizedAngle;
+                
+                const winnerIndex = Math.floor(pointerAngle / arcSize) % numItems;
+                return items[winnerIndex];
+            }
+
+            // --- 5. Winner History Logic ---
+
+            /**
+             * Adds a winner to the history and updates the UI.
+             * @param {string} winner - The winning item.
+             */
+            function addWinnerToHistory(winner) {
+                // Add to the beginning of the array
+                winnerHistory.unshift(winner);
+                // Keep only the last 5 winners
+                if (winnerHistory.length > 5) {
+                    winnerHistory.pop();
+                }
+                saveWinnersToStorage();
+                renderWinnerHistory();
+            }
+
+            /**
+             * Renders the winner history list in the UI.
+             */
+            function renderWinnerHistory() {
+                // Clear old list
+                while (winnerHistoryList.children.length > 1) {
+                    if(winnerHistoryList.lastChild.id !== 'empty-winner-placeholder') {
+                        winnerHistoryList.removeChild(winnerHistoryList.lastChild);
+                    }
+                }
+                
+                if (winnerHistory.length === 0) {
+                    emptyWinnerPlaceholder.style.display = 'block';
+                } else {
+                    emptyWinnerPlaceholder.style.display = 'none';
+                    winnerHistory.forEach(winner => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item bg-transparent border-0 py-1';
+                        li.textContent = winner;
+                        winnerHistoryList.appendChild(li);
+                    });
+                }
+            }
+            
+            function saveWinnersToStorage() {
+                localStorage.setItem('spinWheelWinnerHistory', JSON.stringify(winnerHistory));
+            }
+
+            function loadWinnersFromStorage() {
+                const storedWinners = localStorage.getItem('spinWheelWinnerHistory');
+                if (storedWinners) {
+                    winnerHistory = JSON.parse(storedWinners);
+                }
+            }
+
+            // --- 6. Saved Wheels Logic ---
+
+            /**
+             * Renders the saved wheels list in the modal.
+             */
+            function renderSavedWheels() {
+                // Clear old list
+                while (savedWheelsList.children.length > 1) {
+                    if(savedWheelsList.lastChild.id !== 'no-saved-wheels') {
+                        savedWheelsList.removeChild(savedWheelsList.lastChild);
+                    }
+                }
+
+                if (savedWheels.length === 0) {
+                    noSavedWheels.style.display = 'block';
+                } else {
+                    noSavedWheels.style.display = 'none';
+                    savedWheels.forEach((wheel, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                        
+                        const span = document.createElement('span');
+                        span.textContent = wheel.name;
+                        li.appendChild(span);
+                        
+                        const btnGroup = document.createElement('div');
+                        btnGroup.className = 'btn-group btn-group-sm';
+                        
+                        const loadBtn = document.createElement('button');
+                        loadBtn.className = 'btn btn-outline-primary';
+                        loadBtn.textContent = 'Load';
+                        loadBtn.addEventListener('click', () => loadWheel(index));
+                        
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'btn btn-outline-danger';
+                        deleteBtn.textContent = 'Delete';
+                        deleteBtn.addEventListener('click', () => deleteWheel(index));
+                        
+                        btnGroup.appendChild(loadBtn);
+                        btnGroup.appendChild(deleteBtn);
+                        li.appendChild(btnGroup);
+                        
+                        savedWheelsList.appendChild(li);
+                    });
+                }
+            }
+
+            /**
+             * Prompts user to save the current wheel.
+             */
+            function saveCurrentWheel() {
+                if (items.length === 0) {
+                    // Using a simple alert, but a modal would be nicer
+                    console.log("Cannot save an empty wheel."); 
+                    // In a real app, show a Bootstrap toast or modal alert
+                    return;
+                }
+                const wheelName = prompt("Enter a name for this wheel:", "My Wheel");
+                if (wheelName) {
+                    savedWheels.push({ name: wheelName, items: [...items] });
+                    saveWheelsToStorage();
+                    renderSavedWheels();
+                }
+            }
+
+            /**
+             * Loads a saved wheel configuration.
+             * @param {number} index - The index of the wheel in savedWheels.
+             */
+            function loadWheel(index) {
+                const wheelToLoad = savedWheels[index];
+                if (wheelToLoad) {
+                    clearAllItems();
+                    wheelToLoad.items.forEach(item => addItemToList(item));
+                    myWheelsModal.hide();
+                }
+            }
+
+            /**
+             * Deletes a saved wheel.
+             * @param {number} index - The index of the wheel to delete.
+             */
+            function deleteWheel(index) {
+                if (confirm(`Are you sure you want to delete "${savedWheels[index].name}"?`)) {
+                    savedWheels.splice(index, 1);
+                    saveWheelsToStorage();
+                    renderSavedWheels();
+                }
+            }
+
+            function saveWheelsToStorage() {
+                localStorage.setItem('spinWheelSavedWheels', JSON.stringify(savedWheels));
+            }
+
+            function loadWheelsFromStorage() {
+                const storedWheels = localStorage.getItem('spinWheelSavedWheels');
+                if (storedWheels) {
+                    savedWheels = JSON.parse(storedWheels);
+                }
+            }
+
+            // --- Initial Load ---
+            loadWheelsFromStorage();
+            loadWinnersFromStorage();
+            
+            // Initial draw and UI state setup
+            drawWheel();
+            updateUIState();
+            renderWinnerHistory();
+            renderSavedWheels();
+        });
+    </script>
+</body>
+</html>

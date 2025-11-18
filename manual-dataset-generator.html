@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual Dataset Builder</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the app */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Ensure inputs are dark-mode friendly */
+        input[type="text"], input[type="number"] {
+            background-color: #374151; /* gray-700 */
+            color: #ffffff;
+            border: 1px solid #4b5563; /* gray-600 */
+            border-radius: 0.375rem; /* rounded-md */
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #3b82f6; /* blue-500 */
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+        }
+        /* Style for the delete button */
+        .delete-btn {
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        tr:hover .delete-btn {
+            opacity: 1;
+        }
+        /* Custom scrollbar for table */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #1f2937; /* gray-800 */
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #4b5563; /* gray-600 */
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* gray-500 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 antialiased min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+
+        <!-- ===== SCREEN 1: GET TITLE ===== -->
+        <div id="title-screen" class="max-w-lg mx-auto mt-20 p-8 bg-gray-800 rounded-xl shadow-2xl">
+            <h1 class="text-3xl font-bold text-center mb-6 text-white">Manual Dataset Builder</h1>
+            <p class="text-gray-400 text-center mb-6">What's the title of your new dataset?</p>
+            <form id="title-form" class="space-y-4">
+                <div>
+                    <label for="dataset-title-input" class="block text-sm font-medium text-gray-300 mb-1">Dataset Title</label>
+                    <input type="text" id="dataset-title-input" class="w-full p-3" placeholder="e.g., 'Career Paths' or 'Project Plans'" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transition duration-200">
+                    Start Building
+                </button>
+            </form>
+        </div>
+
+        <!-- ===== SCREEN 2: MAIN APP ===== -->
+        <div id="app-screen" class="hidden">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row justify-between md:items-center mb-8 gap-4">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">Dataset Builder</h1>
+                    <h2 id="dataset-title-header" class="text-2xl text-blue-400"></h2>
+                </div>
+            </div>
+
+            <!-- New Project Context Card -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-2xl mb-8 space-y-4">
+                <h3 class="text-2xl font-semibold mb-2 text-white">Project Context</h3>
+                <p class="text-gray-400 mb-4">Set these values once. They will be applied to all tasks added below.</p>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="global-career-input" class="block text-sm font-medium text-gray-300 mb-1">Career</label>
+                        <input type="text" id="global-career-input" class="w-full p-3" placeholder="e.g., 'Software Engineer'" required>
+                    </div>
+                    <div>
+                        <label for="global-skill-input" class="block text-sm font-medium text-gray-300 mb-1">Skill</label>
+                        <input type="text" id="global-skill-input" class="w-full p-3" placeholder="e.g., 'Git Version Control'" required>
+                    </div>
+                    <div>
+                        <label for="global-skill-level-input" class="block text-sm font-medium text-gray-300 mb-1">Skill Level</label>
+                        <!-- Replaced select dropdown with an input + datalist -->
+                        <input type="text" id="global-skill-level-input" class="w-full p-3" placeholder="e.g., 'Beginner'" value="Beginner" list="skill-level-list" required>
+                    </div>
+                    <div>
+                        <label for="global-roadmap-input" class="block text-sm font-medium text-gray-300 mb-1">Roadmap</label>
+                        <input type="text" id="global-roadmap-input" class="w-full p-3" placeholder="e.g., 'Core Concepts'" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Manual Entry Form -->
+            <div class="bg-gray-800 p-6 rounded-xl shadow-2xl mb-8">
+                <h3 class="text-2xl font-semibold mb-4 text-white">Add Tasks</h3>
+                <form id="data-entry-form" class="space-y-4">
+
+                    <!-- New Persistent Parent Task Section -->
+                    <div class="space-y-2 p-4 border border-gray-700 rounded-lg">
+                        <label class="text-lg font-medium text-gray-200">Current Parent Task</label>
+                        <p class="text-sm text-gray-400">Set this once for the batch of tasks below. It will clear after adding.</p>
+                        <div class="flex items-center gap-2">
+                            <div class="flex-grow">
+                                <label for="current-parent-task" class="sr-only">Parent Task</label>
+                                <input type="text" id="current-parent-task" class="w-full p-2" placeholder="Parent Task (Optional)" list="parent-task-list">
+                            </div>
+                            <div class="w-32">
+                                <label for="current-parent-task-order" class="sr-only">Parent Task Order</label>
+                                <input type="number" id="current-parent-task-order" class="w-full p-2" placeholder="Parent Order" min="1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dynamic Task List -->
+                    <fieldset class="border border-gray-700 p-4 rounded-lg">
+                        <legend class="text-lg font-medium text-gray-200 px-2">Tasks</legend>
+                        <div id="task-list-container" class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                            <!-- Task rows will be dynamically added here -->
+                        </div>
+                        <button type="button" id="add-task-btn" class="mt-4 bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                            Add Task
+                        </button>
+                    </fieldset>
+
+                    <!-- Error Message Box -->
+                    <div id="error-box" class="hidden p-4 bg-red-800 border border-red-700 text-red-100 rounded-lg">
+                        <span id="error-message"></span>
+                    </div>
+
+                    <!-- Form Submit Button -->
+                    <div class="flex items-center justify-end">
+                        <button type="submit" id="add-entry-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-200">
+                            Add Entry to Dataset
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Data Table Section -->
+            <div>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-semibold text-white">Dataset Content</h3>
+                    <button id="export-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-lg shadow-lg transition duration-200">
+                        Export to CSV
+                    </button>
+                </div>
+
+                <!-- Table Container -->
+                <div class="table-container bg-gray-800 rounded-xl shadow-2xl overflow-auto" style="max-height: 60vh;">
+                    <table class="w-full min-w-max text-left text-gray-300">
+                        <thead class="sticky top-0 bg-gray-700 text-gray-100 uppercase text-sm">
+                            <tr>
+                                <th class="p-4">UID</th>
+                                <th class="p-4">Career</th>
+                                <th class="p-4">Skill</th>
+                                <th class="p-4">Skill Level</th>
+                                <th class="p-4">Roadmap</th>
+                                <th class="p-4">Parent Task Order</th>
+                                <th class="p-4">Parent Task</th>
+                                <th class="p-4">Task Order</th>
+                                <th class="p-4">Task</th>
+                                <th class="p-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body" class="divide-y divide-gray-700">
+                            <!-- Empty State -->
+                            <tr id="empty-row">
+                                <td colspan="10" class="p-8 text-center text-gray-500">
+                                    Your dataset is empty. Use the form above to add data.
+                                </td>
+                            </tr>
+                            <!-- Data rows will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div> <!-- /#app-screen -->
+
+        <!-- Datalist for Parent Task suggestions -->
+        <datalist id="parent-task-list">
+            <!-- Options will be dynamically populated by JS -->
+        </datalist>
+
+        <!-- Datalist for Skill Level suggestions -->
+        <datalist id="skill-level-list">
+            <option value="Beginner"></option>
+            <option value="Intermediate"></option>
+            <option value="Advanced"></option>
+            <option value="Expert"></option>
+        </datalist>
+
+    </div> <!-- /max-w-7xl -->
+
+
+    <script type="module">
+        // === STATE ===
+        let datasetTitle = null;
+        let tableData = []; // Stores the flattened data for table/CSV
+        let taskCounter = 0; // For unique task row IDs
+        
+        // === SELECTORS ===
+        const titleScreen = document.getElementById('title-screen');
+        const appScreen = document.getElementById('app-screen');
+        const titleForm = document.getElementById('title-form');
+        const titleInput = document.getElementById('dataset-title-input');
+        const datasetTitleHeader = document.getElementById('dataset-title-header');
+        
+        // Updated to global context inputs
+        const globalCareerInput = document.getElementById('global-career-input');
+        const globalSkillInput = document.getElementById('global-skill-input');
+        const globalSkillLevelInput = document.getElementById('global-skill-level-input');
+        const globalRoadmapInput = document.getElementById('global-roadmap-input');
+        
+        // New selectors for persistent parent task
+        const currentParentTaskInput = document.getElementById('current-parent-task');
+        const currentParentTaskOrderInput = document.getElementById('current-parent-task-order');
+        
+        const dataEntryForm = document.getElementById('data-entry-form');
+        
+        const taskListContainer = document.getElementById('task-list-container');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        
+        const errorBox = document.getElementById('error-box');
+        const errorMessage = document.getElementById('error-message');
+        
+        const tableBody = document.getElementById('data-table-body');
+        const emptyRow = document.getElementById('empty-row');
+        const exportBtn = document.getElementById('export-btn');
+        const parentTaskList = document.getElementById('parent-task-list');
+
+        // === EVENT LISTENERS ===
+        titleForm.addEventListener('submit', handleTitleSubmit);
+        addTaskBtn.addEventListener('click', handleAddTaskRow);
+        dataEntryForm.addEventListener('submit', handleAddEntry);
+        exportBtn.addEventListener('click', handleExportCSV);
+
+        // === FUNCTIONS ===
+
+        /**
+         * Kicks off the app by setting the title and switching screens.
+         */
+        function handleTitleSubmit(e) {
+            e.preventDefault();
+            const title = titleInput.value.trim();
+            if (title) {
+                datasetTitle = title;
+                datasetTitleHeader.textContent = `Dataset: ${title}`;
+                titleScreen.classList.add('hidden');
+                appScreen.classList.remove('hidden');
+                handleAddTaskRow(); // Add one empty task row to start
+                updateParentTaskList(); // Initialize empty datalist
+            }
+        }
+
+        /**
+         * Dynamically adds a new row of inputs for a Task and Order.
+         */
+        function handleAddTaskRow() {
+            taskCounter++;
+            const taskRow = document.createElement('div');
+            taskRow.id = `task-row-${taskCounter}`;
+            taskRow.className = "flex items-center gap-2";
+            
+            taskRow.innerHTML = `
+                <div class="flex-grow">
+                    <label for="task-name-${taskCounter}" class="sr-only">Task Name</label>
+                    <input type="text" id="task-name-${taskCounter}" class="task-name-input w-full p-2" placeholder="Task Name" required>
+                </div>
+                <div class="w-24">
+                    <label for="task-order-${taskCounter}" class="sr-only">Task Order</label>
+                    <input type="number" id="task-order-${taskCounter}" class="task-order-input w-full p-2" placeholder="Task Order" min="1" required>
+                </div>
+                <button type="button" class="remove-task-btn bg-red-600 hover:bg-red-700 text-white font-bold p-2 rounded-lg" data-row-id="${taskCounter}">
+                    &times; <!-- 'x' character -->
+                </button>
+            `;
+            
+            taskListContainer.appendChild(taskRow);
+
+            // Add event listener to the new remove button
+            taskRow.querySelector('.remove-task-btn').addEventListener('click', () => {
+                taskRow.remove();
+            });
+        }
+        
+        /**
+         * Handles submission of the main form.
+         * Reads all tasks and adds them to the main tableData.
+         */
+        function handleAddEntry(e) {
+            e.preventDefault();
+            hideError();
+
+            // Read from global context inputs
+            const careerName = globalCareerInput.value.trim();
+            const skillName = globalSkillInput.value.trim();
+            const skillLevel = globalSkillLevelInput.value.trim();
+            const roadmapName = globalRoadmapInput.value.trim();
+
+            if (!careerName || !skillName || !skillLevel || !roadmapName) {
+                showError("Please fill in all 'Project Context' fields (Career, Skill, Skill Level, and Roadmap).");
+                return;
+            }
+
+            // Read persistent parent task inputs
+            const parentTaskName = currentParentTaskInput.value.trim();
+            const taskParentOrder = currentParentTaskOrderInput.value.trim();
+
+            const taskRows = taskListContainer.querySelectorAll('.task-name-input');
+            if (taskRows.length === 0) {
+                showError("Please add at least one task.");
+                return;
+            }
+
+            let newRows = [];
+            let hasError = false;
+
+            // Loop through all task input rows in the form
+            taskListContainer.querySelectorAll('.flex.items-center.gap-2').forEach(row => {
+                const taskNameInput = row.querySelector('.task-name-input');
+                const taskOrderInput = row.querySelector('.task-order-input');
+
+                const taskName = taskNameInput.value.trim();
+                const taskOrder = taskOrderInput.value.trim();
+
+                if (!taskName || !taskOrder) {
+                    hasError = true;
+                    return; // Skip this task row if incomplete
+                }
+
+                newRows.push({
+                    uid: crypto.randomUUID(),
+                    career: careerName,
+                    skill: skillName,
+                    skillLevel: skillLevel,
+                    roadmap: roadmapName,
+                    task: taskName,
+                    parentTask: parentTaskName,
+                    parentTaskOrder: parentTaskName ? (parseInt(taskParentOrder, 10) || 1) : null, // Default to 1 if parent exists but order is blank
+                    order: parseInt(taskOrder, 10)
+                });
+            });
+
+            if (hasError) {
+                showError("Please ensure all tasks have both a name and an order number.");
+                return;
+            }
+            
+            if (newRows.length === 0) {
+                showError("No valid tasks were entered. Please fill in task details.");
+                return;
+            }
+
+            // Add the new rows to our main data array
+            tableData.push(...newRows);
+
+            // Update UI
+            renderTable();
+            updateParentTaskList(); // Refresh the datalist with new tasks
+            
+            // Clear only the task list AND the parent task inputs
+            taskListContainer.innerHTML = '';
+            currentParentTaskInput.value = '';
+            currentParentTaskOrderInput.value = '';
+            handleAddTaskRow(); // Add one new empty task row
+        }
+
+
+        /**
+         * Re-draws the HTML table based on the current `tableData` state.
+         */
+        function renderTable() {
+            tableBody.innerHTML = ''; // Clear existing rows
+
+            if (tableData.length === 0) {
+                tableBody.appendChild(emptyRow);
+                return;
+            }
+            
+            if(emptyRow.parentNode) {
+                emptyRow.parentNode.removeChild(emptyRow);
+            }
+
+            // Sort data before rendering
+            const sortedData = [...tableData].sort((a, b) => {
+                if (a.career !== b.career) return a.career.localeCompare(b.career);
+                if (a.skill !== b.skill) return a.skill.localeCompare(b.skill);
+                if (a.skillLevel !== b.skillLevel) return a.skillLevel.localeCompare(b.skillLevel);
+                if (a.roadmap !== b.roadmap) return a.roadmap.localeCompare(b.roadmap);
+                // Sort by Parent Task Order first
+                if ((a.parentTaskOrder || 0) !== (b.parentTaskOrder || 0)) return (a.parentTaskOrder || 0) - (b.parentTaskOrder || 0);
+                // Then sort by Task Order
+                return a.order - b.order;
+            });
+
+            sortedData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-700 transition-colors duration-150";
+                tr.innerHTML = `
+                    <td class="p-4 whitespace-nowrap text-xs text-gray-500">${escapeHTML(row.uid.split('-')[0])}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.career)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.skill)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.skillLevel)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.roadmap)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.parentTaskOrder)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.parentTask)}</td>
+                    <td class="p-4 whitespace-nowrap">${escapeHTML(row.order)}</td>
+                    <td class="p-4 whitespace-normal min-w-[200px]">${escapeHTML(row.task)}</td>
+                    <td class="p-4 whitespace-nowrap text-center">
+                        <button type="button" class="delete-btn text-red-500 hover:text-red-400" data-uid="${row.uid}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                        </button>
+                    </td>
+                `;
+                
+                // Add click listener for the delete button
+                tr.querySelector('.delete-btn').addEventListener('click', handleDeleteRow);
+                
+                tableBody.appendChild(tr);
+            });
+        }
+
+        /**
+         * Handles clicking the delete button on a table row.
+         */
+        function handleDeleteRow(e) {
+            const uid = e.currentTarget.dataset.uid;
+            if (!uid) return;
+
+            // Filter out the row with the matching UID
+            tableData = tableData.filter(row => row.uid !== uid);
+
+            // Re-render the table and update parent task suggestions
+            renderTable();
+            updateParentTaskList();
+        }
+
+        /**
+         * Populates the <datalist> with existing task names for suggestions.
+         */
+        function updateParentTaskList() {
+            parentTaskList.innerHTML = ''; // Clear existing options
+            
+            // Get all unique, non-empty *parent task* names from the table data
+            const allParentTaskNames = new Set(
+                tableData
+                    .map(row => row.parentTask)
+                    .filter(ptask => ptask && ptask.trim() !== '') // Filter out empty/null/whitespace
+            );
+            
+            allParentTaskNames.forEach(parentTaskName => {
+                const option = document.createElement('option');
+                option.value = parentTaskName;
+                parentTaskList.appendChild(option);
+            });
+        }
+
+        /**
+         * Creates and triggers a download for a CSV file of the `tableData`.
+         */
+        function handleExportCSV() {
+            if (tableData.length === 0) {
+                showError("There is no data to export.");
+                return;
+            }
+
+            const headers = ["UID", "Career", "Skill", "Skill Level", "Roadmap", "Parent Task Order", "Parent Task", "Task Order", "Task"];
+            const csvRows = [headers.join(",")]; // Add header row
+
+            // Function to escape CSV values
+            const escapeCSV = (val) => {
+                if (val === null || val === undefined) val = "";
+                let str = String(val);
+                // If value contains a comma, a newline, or a double-quote, wrap it in double-quotes
+                if (str.includes(',') || str.includes('\n') || str.includes('"')) {
+                    // Escape existing double-quotes by doubling them
+                    str = `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+
+            // Sort data for export, same as table
+            const sortedData = [...tableData].sort((a, b) => {
+                if (a.career !== b.career) return a.career.localeCompare(b.career);
+                if (a.skill !== b.skill) return a.skill.localeCompare(b.skill);
+                if (a.skillLevel !== b.skillLevel) return a.skillLevel.localeCompare(b.skillLevel);
+                if (a.roadmap !== b.roadmap) return a.roadmap.localeCompare(b.roadmap);
+                if ((a.parentTaskOrder || 0) !== (b.parentTaskOrder || 0)) return (a.parentTaskOrder || 0) - (b.parentTaskOrder || 0);
+                return a.order - b.order;
+            });
+
+            // Convert each row object to a CSV string
+            sortedData.forEach(row => {
+                const values = [
+                    escapeCSV(row.uid),
+                    escapeCSV(row.career),
+                    escapeCSV(row.skill),
+                    escapeCSV(row.skillLevel),
+                    escapeCSV(row.roadmap),
+                    escapeCSV(row.parentTaskOrder),
+                    escapeCSV(row.parentTask),
+                    escapeCSV(row.order),
+                    escapeCSV(row.task)
+                ];
+                csvRows.push(values.join(","));
+            });
+
+            const csvContent = csvRows.join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            
+            // Sanitize title for filename
+            const filename = (datasetTitle || "dataset").replace(/[^a-z0-9_]/gi, '_') + '.csv';
+
+            // Create a link and trigger the download
+            const link = document.createElement('a');
+            if (link.download !== undefined) { // Feature detection
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", filename);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        // === UTILITY FUNCTIONS ===
+
+        /**
+         * Shows an error message in the UI.
+         */
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorBox.classList.remove('hidden');
+        }
+
+        /**
+         * Hides the error message box.
+         */
+        function hideError() {
+            errorBox.classList.add('hidden');
+            errorMessage.textContent = '';
+        }
+
+        /**
+         * Simple HTML escaper to prevent XSS.
+         */
+        function escapeHTML(str) {
+            if (str === null || str === undefined) return "";
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+    </script>
+</body>
+</html>

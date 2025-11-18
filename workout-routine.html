@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Workout Routine</title>
+    <!-- Import Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Import Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Import an icon library for the reset button -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* Use Inter font */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Custom style for the content area to hide/show */
+        .workout-content {
+            display: none;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        /* When the accordion item is active, show the content */
+        .workout-item.active .workout-content {
+            display: block;
+        }
+
+        /* Rotate chevron icon when active */
+        .workout-item.active .chevron-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Style for completed items */
+        .workout-checkbox:checked + .exercise-text .exercise-name {
+            text-decoration: line-through;
+            color: #9ca3af; /* text-gray-400 */
+        }
+         .workout-checkbox:checked + .exercise-text .exercise-details {
+            text-decoration: line-through;
+            color: #b3b9c5; /* lighter gray */
+        }
+
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #a8a8a8;
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #888;
+        }
+    </style>
+</head>
+<body class="bg-gray-200 flex justify-center items-center min-h-screen p-4">
+
+    <!-- Mobile App Container -->
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden" style="height: 90vh;">
+        
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-5 shadow-md">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center space-x-3">
+                    <!-- Dumbbell Icon SVG -->
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.25278C12 6.25278 10.8333 4 8 4C5.16667 4 3 6.25278 3 9.09091C3 12.4364 6.2 15.1818 8 16.5C8.8 17.1 9.8 18 11 18H13C14.2 18 15.2 17.1 16 16.5C17.8 15.1818 21 12.4364 21 9.09091C21 6.25278 18.8333 4 16 4C13.1667 4 12 6.25278 12 6.25278Z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.25278V18"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9.09091H1V11.0909H3V9.09091Z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 9.09091H23V11.0909H21V9.09091Z"></path></svg>
+                    <h1 class="text-2xl font-bold">Weekly Workout</h1>
+                </div>
+                <button id="reset-button" class="text-indigo-200 hover:text-white transition-colors" title="Reset Week">
+                    <i class="fas fa-undo fa-lg"></i>
+                </button>
+            </div>
+            
+            <!-- Overall Progress -->
+            <div class="mt-4">
+                <div class="flex justify-between items-center text-sm font-medium text-indigo-100 mb-1">
+                    <span>Weekly Progress</span>
+                    <span id="overall-progress-text">0 / 0 Completed</span>
+                </div>
+                <div class="w-full bg-indigo-800 rounded-full h-2.5">
+                    <div id="overall-progress-bar" class="bg-white h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Scrollable Content Area -->
+        <div class="overflow-y-auto h-[calc(90vh-160px)] pb-6">
+            
+            <!-- Important Notes Section -->
+            <div class="px-5 pt-5">
+                <div class="workout-item bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="workout-toggle p-4 cursor-pointer flex justify-between items-center">
+                        <div class="font-semibold text-gray-800">Important Notes Before You Begin</div>
+                        <!-- Chevron Icon -->
+                        <svg class="chevron-icon w-5 h-5 text-gray-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="workout-content px-4 pb-4 border-t border-gray-200">
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 text-sm mt-3">
+                            <li><strong>Warm-Up:</strong> Always start with a 5-10 minute warm-up (light cardio, dynamic stretches).</li>
+                            <li><strong>Cool-Down:</strong> Finish with 5-10 minutes of cooling down and static stretching.</li>
+                            <li><strong>Listen to Your Body:</strong> Stop if you feel sharp pain. Rest is important.</li>
+                            <li><strong>Hydration:</strong> Drink plenty of water throughout the day.</li>
+                            <li><strong>Progression:</strong> Increase weight, reps, or sets as you get stronger.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workout List -->
+            <div class="space-y-3 p-5" id="workout-list">
+
+                <!-- Day 1 -->
+                <div class="workout-item bg-white rounded-lg shadow-md border border-gray-100 transition-shadow hover:shadow-lg">
+                    <div class="workout-toggle p-4 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm font-semibold text-indigo-600">Day 1</span>
+                                <h2 class="font-bold text-lg text-gray-900">Upper Body (Push Focus)</h2>
+                                <p class="text-sm text-gray-500">Chest, Shoulders, Triceps</p>
+                            </div>
+                            <svg class="chevron-icon w-6 h-6 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <!-- Per-Day Progress -->
+                        <div class="mt-2">
+                            <span class="day-progress-text text-xs font-medium text-gray-500">0 / 5</span>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="day-progress-bar bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workout-content px-4 pb-4 border-t border-gray-100">
+                        <div class="space-y-3 mt-4">
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d1-ex1" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Push-Ups</span>
+                                    <span class="exercise-details text-sm"> (or Knee Push-Ups): 3 sets of 8-12 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d1-ex2" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Dumbbell Overhead Press:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 10-12 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d1-ex3" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Dumbbell Chest Press:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 10-12 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d1-ex4" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Tricep Dips</span>
+                                    <span class="exercise-details text-sm"> (using chair): 3 sets of 10-15 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d1-ex5" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Lateral Raises:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 12-15 reps</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 2 -->
+                <div class="workout-item bg-white rounded-lg shadow-md border border-gray-100 transition-shadow hover:shadow-lg">
+                    <div class="workout-toggle p-4 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm font-semibold text-indigo-600">Day 2</span>
+                                <h2 class="font-bold text-lg text-gray-900">Lower Body</h2>
+                                <p class="text-sm text-gray-500">Quads, Hamstrings, Glutes</p>
+                            </div>
+                            <svg class="chevron-icon w-6 h-6 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <!-- Per-Day Progress -->
+                        <div class="mt-2">
+                            <span class="day-progress-text text-xs font-medium text-gray-500">0 / 5</span>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="day-progress-bar bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workout-content px-4 pb-4 border-t border-gray-100">
+                        <div class="space-y-3 mt-4">
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d2-ex1" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Bodyweight Squats:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 12-15 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d2-ex2" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Lunges:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 10-12 reps per leg</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d2-ex3" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Glute Bridges:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 15-20 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d2-ex4" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Romanian Deadlifts:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 12-15 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d2-ex5" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Calf Raises:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 20 reps</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 3 -->
+                <div class="workout-item bg-white rounded-lg shadow-md border border-gray-100 transition-shadow hover:shadow-lg">
+                    <div class="workout-toggle p-4 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm font-semibold text-indigo-600">Day 3</span>
+                                <h2 class="font-bold text-lg text-gray-900">Upper Body (Pull Focus)</h2>
+                                <p class="text-sm text-gray-500">Back, Biceps</p>
+                            </div>
+                            <svg class="chevron-icon w-6 h-6 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <!-- Per-Day Progress -->
+                        <div class="mt-2">
+                            <span class="day-progress-text text-xs font-medium text-gray-500">0 / 5</span>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="day-progress-bar bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workout-content px-4 pb-4 border-t border-gray-100">
+                        <div class="space-y-3 mt-4">
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d3-ex1" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Dumbbell Rows:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 10-12 reps per arm</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d3-ex2" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Pull-Aparts</span>
+                                    <span class="exercise-details text-sm"> (band) or Supermans: 3 sets of 15-20 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d3-ex3" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Bicep Curls:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 10-12 reps per arm</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d3-ex4" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Renegade Rows:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 8-10 reps per arm</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d3-ex5" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Hammer Curls:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 10-12 reps per arm</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 4 -->
+                <div class="workout-item bg-white rounded-lg shadow-md border border-gray-100 transition-shadow hover:shadow-lg">
+                    <div class="workout-toggle p-4 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm font-semibold text-green-600">Day 4</span>
+                                <h2 class="font-bold text-lg text-gray-900">Active Recovery or Rest</h2>
+                                <p class="text-sm text-gray-500">Flexibility, Light Activity</p>
+                            </div>
+                            <svg class="chevron-icon w-6 h-6 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <!-- Per-Day Progress -->
+                        <div class="mt-2">
+                            <span class="day-progress-text text-xs font-medium text-gray-500">0 / 3</span>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="day-progress-bar bg-green-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workout-content px-4 pb-4 border-t border-gray-100">
+                        <div class="space-y-3 mt-4">
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d4-ex1" class="workout-checkbox h-5 w-5 rounded text-green-600 focus:ring-green-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Light Cardio:</span>
+                                    <span class="exercise-details text-sm"> 20-30 min walk, jog, or bike.</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d4-ex2" class="workout-checkbox h-5 w-5 rounded text-green-600 focus:ring-green-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Stretching/Yoga:</span>
+                                    <span class="exercise-details text-sm"> 20-30 min session.</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d4-ex3" class="workout-checkbox h-5 w-5 rounded text-green-600 focus:ring-green-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Complete Rest:</span>
+                                    <span class="exercise-details text-sm"> Allow your body to recover.</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 5 -->
+                <div class="workout-item bg-white rounded-lg shadow-md border border-gray-100 transition-shadow hover:shadow-lg">
+                    <div class="workout-toggle p-4 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm font-semibold text-indigo-600">Day 5</span>
+                                <h2 class="font-bold text-lg text-gray-900">Full Body Strength</h2>
+                                <p class="text-sm text-gray-500">Full body challenge</p>
+                            </div>
+                            <svg class="chevron-icon w-6 h-6 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <!-- Per-Day Progress -->
+                        <div class="mt-2">
+                            <span class="day-progress-text text-xs font-medium text-gray-500">0 / 5</span>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="day-progress-bar bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workout-content px-4 pb-4 border-t border-gray-100">
+                        <div class="space-y-3 mt-4">
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d5-ex1" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Dumbbell Thrusters:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 10-12 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d5-ex2" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Plank:</span>
+                                    <span class="exercise-details text-sm"> 3 sets, hold 30-60 seconds</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d5-ex3" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Dumbbell Deadlifts:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 12-15 reps</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d5-ex4" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Push-Ups:</span>
+                                    <span class="exercise-details text-sm"> 3 sets to failure</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d5-ex5" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Russian Twists:</span>
+                                    <span class="exercise-details text-sm"> 3 sets of 15-20 reps per side</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 6 -->
+                <div class="workout-item bg-white rounded-lg shadow-md border border-gray-100 transition-shadow hover:shadow-lg">
+                    <div class="workout-toggle p-4 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm font-semibold text-indigo-600">Day 6</span>
+                                <h2 class="font-bold text-lg text-gray-900">Cardio & Core</h2>
+                                <p class="text-sm text-gray-500">Endurance and stability</p>
+                            </div>
+                            <svg class="chevron-icon w-6 h-6 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <!-- Per-Day Progress -->
+                        <div class="mt-2">
+                            <span class="day-progress-text text-xs font-medium text-gray-500">0 / 5</span>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="day-progress-bar bg-indigo-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workout-content px-4 pb-4 border-t border-gray-100">
+                        <div class="mt-4">
+                            <h3 class="font-semibold text-gray-800">1. Cardio (Choose one):</h3>
+                            <div class="space-y-3 mt-2 pl-2">
+                                <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                    <input type="checkbox" id="d6-c1" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <span class="exercise-text text-gray-700">
+                                        <span class="exercise-name font-semibold text-gray-800">HIIT:</span>
+                                        <span class="exercise-details text-sm"> 20 mins (e.g., 30s sprint, 30s rest)</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                    <input type="checkbox" id="d6-c2" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <span class="exercise-text text-gray-700">
+                                        <span class="exercise-name font-semibold text-gray-800">Steady-State:</span>
+                                        <span class="exercise-details text-sm"> 30-45 mins (run, cycle, etc.)</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-semibold text-gray-800">2. Core Workout:</h3>
+                            <div class="space-y-3 mt-2 pl-2">
+                                <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                    <input type="checkbox" id="d6-k1" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <span class="exercise-text text-gray-700">
+                                        <span class="exercise-name font-semibold text-gray-800">Crunches:</span>
+                                        <span class="exercise-details text-sm"> 3 sets of 15-20 reps</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                    <input type="checkbox" id="d6-k2" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <span class="exercise-text text-gray-700">
+                                        <span class="exercise-name font-semibold text-gray-800">Leg Raises:</span>
+                                        <span class="exercise-details text-sm"> 3 sets of 15-20 reps</span>
+                                    </span>
+                                </label>
+                                <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                    <input type="checkbox" id="d6-k3" class="workout-checkbox h-5 w-5 rounded text-indigo-600 focus:ring-indigo-500 border-gray-300">
+                                    <span class="exercise-text text-gray-700">
+                                        <span class="exercise-name font-semibold text-gray-800">Plank:</span>
+                                        <span class="exercise-details text-sm"> 3 sets, hold 30-60 seconds</span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 7 -->
+                <div class="workout-item bg-white rounded-lg shadow-md border border-gray-100 transition-shadow hover:shadow-lg">
+                    <div class="workout-toggle p-4 cursor-pointer">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm font-semibold text-green-600">Day 7</span>
+                                <h2 class="font-bold text-lg text-gray-900">Rest</h2>
+                                <p class="text-sm text-gray-500">Recover and rebuild</p>
+                            </div>
+                            <svg class="chevron-icon w-6 h-6 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                        <!-- Per-Day Progress -->
+                        <div class="mt-2">
+                            <span class="day-progress-text text-xs font-medium text-gray-500">0 / 1</span>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                <div class="day-progress-bar bg-green-600 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="workout-content px-4 pb-4 border-t border-gray-100">
+                        <div class="space-y-3 mt-4">
+                            <label class="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-150 cursor-pointer">
+                                <input type="checkbox" id="d7-ex1" class="workout-checkbox h-5 w-5 rounded text-green-600 focus:ring-green-500 border-gray-300">
+                                <span class="exercise-text text-gray-700">
+                                    <span class="exercise-name font-semibold text-gray-800">Complete Rest.</span>
+                                    <span class="exercise-details text-sm"> This is crucial for muscle repair and growth.</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // --- Elements ---
+            const allCheckboxes = document.querySelectorAll('.workout-checkbox');
+            const workoutItems = document.querySelectorAll('.workout-item');
+            const overallProgressBar = document.getElementById('overall-progress-bar');
+            const overallProgressText = document.getElementById('overall-progress-text');
+            const resetButton = document.getElementById('reset-button');
+            const storageKey = 'workoutProgress';
+
+            // --- Functions ---
+
+            function updatePerDayProgress() {
+                workoutItems.forEach(item => {
+                    const checkboxesInItem = item.querySelectorAll('.workout-checkbox');
+                    if (checkboxesInItem.length === 0) return;
+
+                    const checkedInItem = item.querySelectorAll('.workout-checkbox:checked');
+                    const total = checkboxesInItem.length;
+                    const checkedCount = checkedInItem.length;
+                    const percentage = total > 0 ? (checkedCount / total) * 100 : 0;
+
+                    const progressBar = item.querySelector('.day-progress-bar');
+                    const progressText = item.querySelector('.day-progress-text');
+
+                    if (progressBar) {
+                        progressBar.style.width = `${percentage}%`;
+                    }
+                    if (progressText) {
+                        progressText.textContent = `${checkedCount} / ${total}`;
+                    }
+                });
+            }
+
+            function updateOverallProgress() {
+                const totalCheckboxes = allCheckboxes.length;
+                const totalChecked = document.querySelectorAll('.workout-checkbox:checked').length;
+                const percentage = totalCheckboxes > 0 ? (totalChecked / totalCheckboxes) * 100 : 0;
+
+                if (overallProgressBar) {
+                    overallProgressBar.style.width = `${percentage}%`;
+                }
+                if (overallProgressText) {
+                    overallProgressText.textContent = `${totalChecked} / ${totalCheckboxes} Completed`;
+                }
+            }
+
+            function saveProgress() {
+                const progress = {};
+                allCheckboxes.forEach(checkbox => {
+                    if (checkbox.id) {
+                        progress[checkbox.id] = checkbox.checked;
+                    }
+                });
+                localStorage.setItem(storageKey, JSON.stringify(progress));
+                
+                // Update UIs
+                updatePerDayProgress();
+                updateOverallProgress();
+            }
+
+            function loadProgress() {
+                const progress = JSON.parse(localStorage.getItem(storageKey));
+                if (!progress) {
+                    // If no progress, still update UI to show 0
+                    updatePerDayProgress();
+                    updateOverallProgress();
+                    return;
+                }
+
+                allCheckboxes.forEach(checkbox => {
+                    if (checkbox.id && progress[checkbox.id] !== undefined) {
+                        checkbox.checked = progress[checkbox.id];
+                    }
+                });
+
+                // Update UIs after loading
+                updatePerDayProgress();
+                updateOverallProgress();
+            }
+
+            function resetProgress() {
+                // You can add a confirmation here if you like
+                // if (!confirm("Are you sure you want to reset your weekly progress?")) {
+                //     return;
+                // }
+
+                localStorage.removeItem(storageKey);
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Update UIs
+                updatePerDayProgress();
+                updateOverallProgress();
+            }
+
+            // --- Event Listeners ---
+
+            // Accordion
+            workoutItems.forEach(item => {
+                const toggle = item.querySelector('.workout-toggle');
+                if (toggle) {
+                    toggle.addEventListener('click', () => {
+                        item.classList.toggle('active');
+                    });
+                }
+            });
+
+            // Checkboxes
+            allCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('click', saveProgress);
+            });
+
+            // Reset Button
+            if (resetButton) {
+                resetButton.addEventListener('click', resetProgress);
+            }
+
+            // --- Initial Load ---
+            
+            // Automatically open the "Important Notes" section
+            const notesSection = document.querySelector('.workout-item');
+            if (notesSection) {
+                notesSection.classList.add('active');
+            }
+
+            // Load progress and update UIs
+            loadProgress();
+        });
+    </script>
+
+</body>
+</html>

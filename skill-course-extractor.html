@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coursera Skill Extractor</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load PapaParse for CSV parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Load SheetJS (xlsx.js) for Excel parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Custom styles for file input */
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            cursor: pointer;
+        }
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .file-input-label {
+            display: block;
+            padding: 0.75rem 1.25rem;
+            background-color: #4A5568; /* bg-gray-700 */
+            color: white;
+            border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .file-input-wrapper:hover .file-input-label {
+            background-color: #2D3748; /* bg-gray-800 */
+        }
+        #file-name-display {
+            margin-top: 0.75rem;
+            font-style: italic;
+            color: #A0AEC0; /* text-gray-400 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen p-8 flex items-center justify-center">
+
+    <div class="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-2xl">
+        <h1 class="text-3xl font-bold mb-2 text-center text-blue-400">Coursera Skill & Course Extractor</h1>
+        <p class="text-center text-gray-400 mb-6">Upload all your CSV or Excel files to combine them into a single skill dataset.</p>
+
+        <!-- Step 1: File Upload -->
+        <div class="mb-4">
+            <label class="block text-lg font-medium mb-2" for="file-upload">Step 1: Upload Files (.csv, .xlsx, .xls)</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="file-upload" class="file-input" multiple accept=".csv,.xlsx,.xls" onchange="displayFileNames(this)">
+                <label for="file-upload" class="file-input-label">Choose Files</label>
+            </div>
+            <div id="file-name-display">No files selected</div>
+        </div>
+
+        <!-- Step 2: Process Button -->
+        <div class="mb-4">
+            <label class="block text-lg font-medium mb-2">Step 2: Process Data</label>
+            <button id="process-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg disabled:opacity-50" disabled>
+                Process Files
+            </button>
+        </div>
+        
+        <!-- Step 3: Download Button -->
+        <div class="mb-6">
+            <label class="block text-lg font-medium mb-2">Step 3: Download Result</label>
+            <button id="download-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200 shadow-lg opacity-50" disabled>
+                Download skills_and_course_details.csv
+            </button>
+        </div>
+
+        <!-- Status Log -->
+        <div>
+            <label for="status-log" class="block text-lg font-medium mb-2">Processing Log</label>
+            <pre id="status-log" class="bg-gray-900 text-gray-300 p-4 rounded-md h-48 overflow-y-auto text-sm"></pre>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-upload');
+        const processBtn = document.getElementById('process-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const statusLog = document.getElementById('status-log');
+        const fileNameDisplay = document.getElementById('file-name-display');
+ 
+       let csvOutput = null;
+       // Use a Map for deduplication, with `skill|course_id` as the key
+       let processedDataMap = new Map();
+ 
+         // Function to display selected file names
+        function displayFileNames(input) {
+            const files = input.files;
+            if (files.length > 0) {
+                fileNameDisplay.textContent = `${files.length} file(s) selected: ${Array.from(files).map(f => f.name).join(', ')}`;
+                processBtn.disabled = false;
+                processBtn.classList.remove('disabled:opacity-50');
+            } else {
+                fileNameDisplay.textContent = 'No files selected';
+                processBtn.disabled = true;
+                processBtn.classList.add('disabled:opacity-50');
+            }
+        }
+
+        // Helper to log messages
+        function log(message) {
+            console.log(message);
+            statusLog.textContent += `[${new Date().toLocaleTimeString()}] ${message}\n`;
+            statusLog.scrollTop = statusLog.scrollHeight;
+        }
+
+        // Add click listener for processing
+        processBtn.addEventListener('click', processFiles);
+
+        function processFiles() {
+            const files = fileInput.files;
+            if (files.length === 0) {
+                log('Error: No files selected.');
+                return;
+            }
+
+            // Reset state
+            log(`Processing ${files.length} file(s)...`);
+            processBtn.disabled = true;
+            downloadBtn.disabled = true;
+            downloadBtn.classList.add('opacity-50');
+            csvOutput = null;
+            processedDataMap.clear(); // Clear data from previous runs
+            let filesProcessed = 0;
+ 
+             // This function will be called by both CSV and Excel parsers
+            const processData = (results, fileName) => {
+                log(`Successfully parsed ${fileName}. Found ${results.data.length} rows.`);
+                 
+                const fields = results.meta.fields || [];
+                // Find all skill headers (e.g., 'skills/0', 'skills/1', ...)
+                const skillHeaders = fields.filter(field => field.startsWith('skills/'));
+                // Find all partner headers (e.g., 'partners/0', 'partners/1', ...)
+                const partnerHeaders = fields.filter(field => field.startsWith('partners/'));
+                 
+                if (skillHeaders.length === 0) {
+                    log(`Warning: No 'skills/...' columns found in ${fileName}.`);
+                }
+ 
+                // Check for all required columns
+                const requiredHeaders = {
+                    id: 'id',
+                    course_name: 'name',
+                    course_type: 'productType',
+                    difficulty_level: 'productDifficultyLevel',
+                    duration: 'productDuration',
+                    avg_rating: 'avgProductRating',
+                    num_ratings: 'numProductRatings',
+                    is_free: 'isCourseFree',
+                    is_coursera_plus: 'isPartOfCourseraPlus',
+                    course_url: 'url'
+                };
+
+                let hasAllHeaders = true;
+                for (const key in requiredHeaders) {
+                    if (!fields.includes(requiredHeaders[key])) {
+                        log(`Warning: Column '${requiredHeaders[key]}' (for ${key}) not found in ${fileName}.`);
+                        if (key === 'id' || key === 'course_name') hasAllHeaders = false; // Critical headers
+                    }
+                }
+
+                if (!hasAllHeaders) {
+                    log(`Critical header 'id' or 'name' missing. Skipping ${fileName}.`);
+                } else {
+                    // Extract full course data per skill
+                    results.data.forEach(row => {
+                        const courseId = row[requiredHeaders.id];
+                        const courseName = row[requiredHeaders.course_name];
+                        
+                        // A course must have an ID and a Name to be processed
+                        if (courseId && courseName) {
+                            // Consolidate partners into a single string
+                            const partners = partnerHeaders.map(h => row[h]).filter(Boolean).join(', ');
+
+                            // Create a base object with all course details
+                            const courseDetails = {
+                                course_name: courseName,
+                                course_type: row[requiredHeaders.course_type],
+                                difficulty_level: row[requiredHeaders.difficulty_level],
+                                duration: row[requiredHeaders.duration],
+                                avg_rating: row[requiredHeaders.avg_rating],
+                                num_ratings: row[requiredHeaders.num_ratings],
+                                is_free: row[requiredHeaders.is_free],
+                                is_coursera_plus: row[requiredHeaders.is_coursera_plus],
+                                partners: partners,
+                                course_url: row[requiredHeaders.course_url]
+                            };
+
+                            // Create a new row for each skill associated with this course
+                            skillHeaders.forEach(header => {
+                                const skill = row[header];
+                                // Add to set if the skill exists
+                                if (skill) {
+                                    // Use skill|course_id as the unique key
+                                    const key = `${skill}|${courseId}`;
+                                    if (!processedDataMap.has(key)) {
+                                        processedDataMap.set(key, {
+                                            skill: skill,
+                                            ...courseDetails
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+                
+                filesProcessed++;
+                
+                // Check if all files are done
+                if (filesProcessed === files.length) {
+                    allFilesDone(processedDataMap);
+                }
+            };
+             
+            const handleFileError = (fileName, errorMsg) => {
+                log(`Error parsing ${fileName}: ${errorMsg}`);
+                filesProcessed++;
+                if (filesProcessed === files.length) {
+                    allFilesDone(processedDataMap);
+                }
+            };
+ 
+            // Loop through each file
+            Array.from(files).forEach(file => {
+                log(`Parsing ${file.name}...`);
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                
+                if (fileExtension === 'csv') {
+                    // Use PapaParse for CSV
+                    Papa.parse(file, {
+                        header: true, // Automatically detect headers
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            processData(results, file.name);
+                        },
+                        error: (err) => {
+                            handleFileError(file.name, err.message);
+                        }
+                    });
+                } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
+                    // Use SheetJS (xlsx.js) for Excel
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const data = e.target.result;
+                            const workbook = XLSX.read(data, { type: 'array' });
+                            const firstSheetName = workbook.SheetNames[0];
+                            const worksheet = workbook.Sheets[firstSheetName];
+                            // auto-detect headers
+                            const jsonData = XLSX.utils.sheet_to_json(worksheet); 
+                            
+                            if (jsonData.length === 0) {
+                                log(`Warning: ${file.name} (sheet 1) is empty.`);
+                                processData({ data: [], meta: { fields: [] } }, file.name);
+                                return;
+                            }
+                            
+                            // Get headers from the first data row
+                            const fields = Object.keys(jsonData[0]);
+                            const results = {
+                                data: jsonData,
+                                meta: { fields: fields }
+                            };
+                            processData(results, file.name);
+
+                        } catch (err) {
+                            handleFileError(file.name, err.message);
+                        }
+                    };
+                    reader.onerror = (err) => {
+                        handleFileError(file.name, 'File reading error.');
+                    };
+                    reader.readAsArrayBuffer(file);
+                } else {
+                     handleFileError(file.name, 'Unsupported file type. Please use .csv, .xlsx, or .xls.');
+                }
+            });
+        }
+ 
+        function allFilesDone(dataMap) {
+            if (dataMap.size === 0) {
+                log('Processing complete, but no unique skill-course pairs were found.');
+                processBtn.disabled = false;
+                return;
+            }
+
+            log(`Processing complete. Found ${dataMap.size} unique skill-course rows.`);
+
+            // Convert the Map values to an array
+            const dataArray = Array.from(dataMap.values());
+
+            // Define the exact column order requested
+            const columns = [
+                "skill",
+                "course_name",
+                "course_type",
+                "difficulty_level",
+                "duration",
+                "avg_rating",
+                "num_ratings",
+                "is_free",
+                "is_coursera_plus",
+                "partners",
+                "course_url"
+            ];
+ 
+            // Generate the final CSV string
+            csvOutput = Papa.unparse(dataArray, {
+                header: true,
+                columns: columns
+            });
+ 
+            log('CSV content generated. Ready for download.');
+            downloadBtn.disabled = false;
+            downloadBtn.classList.remove('opacity-50');
+            processBtn.disabled = false;
+        }
+ 
+        // Add click listener for downloading
+        downloadBtn.addEventListener('click', () => {
+            if (!csvOutput) {
+                log('Error: No CSV data to download.');
+                return;
+            }
+
+            log('Preparing download...');
+            
+            // Create a Blob
+            const blob = new Blob([csvOutput], { type: 'text/csv;charset=utf-8;' });
+            
+            // Create a temporary link to trigger the download
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'skills_and_course_details.csv');
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            log('Download initiated.');
+        });
+
+    </script>
+</body>
+</html>
