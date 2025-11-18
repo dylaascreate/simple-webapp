@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web App Hub</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Import Google Font "Inter" -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+    <!-- Configure Tailwind for dark mode and Inter font -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100 p-8 transition-colors duration-300">
+
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-indigo-600 dark:text-indigo-400 mb-4">Web App Hub</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-300">A collection of my mini-projects and tools.</p>
+        </header>
+
+        <!-- App Grid -->
+        <main class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- Card: AI Dataset Generator -->
+            <a href="ai-dataset-generator.html" class="block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                <!-- Icon -->
+                <div class="w-12 h-12 mb-4 p-3 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900 rounded-full">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 4a8 8 0 0 0-8 8c0 1.8.6 3.5 1.7 4.8"/><path d="M12 4a8 8 0 0 1 8 8c0 1.8-.6 3.5-1.7 4.8"/><path d="M12 20v-4"/><path d="M12 12V8"/><path d="M12 12H8"/><path d="M12 12h4"/><path d="m15 5 2-2"/><path d="m9 5-2-2"/><path d="m15 19 2 2"/><path d="m9 19-2 2"/><circle cx="12" cy="12" r="3"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><circle cx="5" cy="19" r="2"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">AI Dataset Generator</h2>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Use AI to generate large-scale synthetic datasets.</p>
+            </a>
+
+            <!-- Card: Card Creation -->
+            <a href="card-creation.html" class="block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                <!-- Icon -->
+                <div class="w-12 h-12 mb-4 p-3 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900 rounded-full">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Card Creation Tool</h2>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Design custom cards (flashcards, profiles, etc.).</p>
+            </a>
+
+            <!-- Card: Manual Dataset Generator -->
+            <a href="manual-dataset-generator.html" class="block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                <!-- Icon -->
+                <div class="w-12 h-12 mb-4 p-3 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900 rounded-full">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 5.5a2.5 2.5 0 0 0-5 0V12a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V5.5Z"/><path d="M12 13v7a1 1 0 0 0 1 1h3.5a2.5 2.5 0 1 0 0-5H12Z"/><path d="M4 12.2V17a5 5 0 0 0 5 5h1a1 1 0 0 0 1-1v-7.2a2.5 2.5 0 1 0-5 0Z"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Manual Dataset Generator</h2>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">A simple interface for building datasets by hand.</p>
+            </a>
+
+            <!-- Card: Skill Course Extractor -->
+            <a href="skill-course-extractor.html" class="block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                <!-- Icon -->
+                <div class="w-12 h-12 mb-4 p-3 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900 rounded-full">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.084a1 1 0 0 0-.019 1.838l8.53 3.91a2 2 0 0 0 1.66 0l8.53-3.91Z"/><path d="M6.6 11.72 12 14.36l5.4-2.64"/><path d="m19 12.86-7 3.2-7-3.2"/><path d="M22 14v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6"/><path d="M12 15.11 3.26 11.28"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Skill & Course Extractor</h2>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Analyze text to extract skills and course information.</p>
+            </a>
+
+            <!-- Card: Spin Wheel -->
+            <a href="spin-wheel.html" class="block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                <!-- Icon -->
+                <div class="w-12 h-12 mb-4 p-3 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900 rounded-full">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/><path d="M12 12 4.2 4.2"/><path d="m12 12 7.8 7.8"/><path d="M12 12 4.2 19.8"/><path d="M12 12 19.8 4.2"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Spin Wheel</h2>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">A fun, interactive wheel for decisions or prizes.</p>
+            </a>
+
+            <!-- Card: Unit Converter -->
+            <a href="unit-converter.html" class="block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                <!-- Icon -->
+                <div class="w-12 h-12 mb-4 p-3 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900 rounded-full">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m16 16 3-3 3 3M16 4l3 3 3-3"/><path d="M10 16H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M10 4h10"/><path d="M10 16h10"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Unit Converter</h2>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Convert various units of measurement.</p>
+            </a>
+
+            <!-- Card: Workout Routine -->
+            <a href="workout-routine.html" class="block p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                <!-- Icon -->
+                <div class="w-12 h-12 mb-4 p-3 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900 rounded-full">
+                    <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 5.343a2.485 2.485 0 1 1-3.514-3.514 2.485 2.485 0 0 1 3.514 3.514Z"/><path d="M14.4 14.4 9.6 9.6"/><path d="M5.343 18.657a2.485 2.485 0 1 1-3.514-3.514 2.485 2.485 0 0 1 3.514 3.514Z"/><path d="m14.4 9.6 4.257-4.257"/><path d="m9.6 14.4-4.257 4.257"/><path d="M14.4 14.4 9.6 9.6"/><path d="m5.343 8.828.354.354a2.485 2.485 0 0 0 3.514 0l.354-.354a2.485 2.485 0 0 0 0-3.514l-.354-.354a2.485 2.485 0 0 0-3.514 0l-.354.354a2.485 2.485 0 0 0 0 3.514Z"/><path d="M14.4 14.4 9.6 9.6"/><path d="m18.657 15.172-.354-.354a2.485 2.485 0 0 0-3.514 0l-.354.354a2.485 2.485 0 0 0 0 3.514l.354.354a2.485 2.485 0 0 0 3.514 0l.354-.354a2.485 2.485 0 0 0 0-3.514Z"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold mb-2 text-gray-900 dark:text-white">Workout Routine</h2>
+                <p class="text-gray-600 dark:text-gray-300 text-sm">Create, save, and manage your workout schedules.</p>
+            </a>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <p class="text-sm text-gray-500 dark:text-gray-400">© 2025 My Web Apps. All rights reserved.</p>
+        </footer>
+    </div>
+
+</body>
+</html>
