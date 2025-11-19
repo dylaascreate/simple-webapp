@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Student Pack Tracker</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .checkbox-wrapper input:checked + div {
+            background-color: #10B981;
+            border-color: #10B981;
+        }
+        .checkbox-wrapper input:checked + div svg {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const initialData = {
+            "Experiences": [
+                "LaunchPad: Intro to Copilot", "Understanding Markdown", "Intro to GitHub & GitHub Flow",
+                "GitHub Foundations Certification", "Intro to Open Source", "AI Prompting & Technical Writing",
+                "Security and Monitoring", "Career Readiness", "Intro to Web Dev", "Hackathon in the Cloud",
+                "Aspiring Creatives", "Data Science & Machine Learning", "Mobile App Development",
+                "Developer Operations DevOps", "Virtual Event Kit", "Explore GitHub Primer",
+                "Profile README Tutorial", "Primer: Codespaces", "Launchpad: Introduction to Javascript"
+            ],
+            "Partner Offers": [
+                "GitHub Copilot — Free Copilot Pro", "Namecheap — Free .me domain (1 year) + Free SSL (1 year)",
+                "DigitalOcean — $200 credit (1 year)", "Name.com — Free select domain",
+                "Microsoft Azure — $100 credit + 25+ services", "Notion — Education plan + AI features",
+                "JetBrains — Free IDE licenses (renewable)", "Heroku — $13/month credit for 24 months",
+                "DataCamp — 3 months free", "Educative — 6 months free (70+ courses)",
+                "Visual Studio Code packs — language tooling", "MongoDB Atlas — $50 credits + certification",
+                "Termius — Free Pro and Team features", "Camber — Student scientific computing plan",
+                "GitHub Pages — Free hosting", "FrontendMasters — 6 months access",
+                "Testmail — Free Essential plan", "GitKraken — Student plan", "GitLens — Student plan",
+                "New Relic — Free observability", "LocalStack — Free license", "Bootstrap Studio — Free design tool",
+                "Appwrite — Pro resources for backend", "Scrimba — 1-month pro frontend courses",
+                "PomoDone — Lite plan", "Codedex — 6 months free", "DailyBot — Business plan for retrospectives",
+                "Honeybadger — 1 year free", "Codecov — Free code coverage", "AstraSecurity — 6 months firewall/scanner",
+                "Carto — Upgraded spatial analytics (2 years)", "Vaadin — Pro license", "POEditor — Free Plus Plan",
+                "SimpleAnalytics — 1 year", "Themeisle — Neve WP theme (1 year)", "DeepScan — 6-month trial",
+                "Blockchair — 100,000 blockchain API requests", "DevCycle — Feature flags (1 year)",
+                "Dashlane — 6 months premium", "ConfigCat — 1000 feature flags free", "Appfigures — 1 year analytics",
+                "SymfonyCasts — 3 months free", "CodeScene — Private repo analysis",
+                "Cryptolens — Free software licensing", "Blackfire — Free profiling tool", "PopSQL — Premium SQL editor",
+                "GoRails — 12 months Ruby/Rails lessons", "Imgbot — Free image optimization",
+                "Doppler — Free Team secrets management", "SQLGate — 1 year SQL IDE", "Xojo — Cross-platform dev tool",
+                "WorkingCopy — Pro iOS Git client", "Pageclip — Free static site form backend",
+                "Polypane — 1 year developer browser", "HazeOver — Mac focus tool", "Zyte — Scrapy cloud credits",
+                "Arduino — Cloud + hardware discounts", "Tower — Pro Git desktop client", "Travis CI — Free private builds CI",
+                "Sentry — 1 year error tracking", "SlideCoach — AI presentation coach credits",
+                "Bump.sh — API docs publishing plan", "Adafruit — IO+ cloud and hardware discounts",
+                "InterviewCake — 1 week coding prep", "LambdaTest — 1 year live testing plan",
+                "GitHub Community Exchange — Student network"
+            ],
+            "Other Notable Resources": [
+                "Notion Template Collections (courses, hackathons, portfolios)",
+                "Icons8 / IconScout / Octicons (icons and illustrations)", "Requestly (API mock/intercept)",
+                "Password managers: Dashlane, 1Password", "Pluralsight / Microsoft Dev Essentials (training)",
+                "GitHub Campus Experts program"
+            ],
+            "Claiming and Activation": [
+                "Connect GitHub account to partner sites where required",
+                "Redeem partner codes or follow verification steps",
+                "Check eligibility and expiration details for each offer"
+            ]
+        };
+
+        function App() {
+            const [checkedItems, setCheckedItems] = React.useState(() => {
+                const saved = localStorage.getItem('github-pack-tracker');
+                return saved ? JSON.parse(saved) : {};
+            });
+
+            React.useEffect(() => {
+                localStorage.setItem('github-pack-tracker', JSON.stringify(checkedItems));
+            }, [checkedItems]);
+
+            const handleToggle = (item) => {
+                setCheckedItems(prev => ({
+                    ...prev,
+                    [item]: !prev[item]
+                }));
+            };
+
+            const downloadCSV = () => {
+                let csvContent = "data:text/csv;charset=utf-8,Category,Item,Status\n";
+                
+                Object.entries(initialData).forEach(([category, items]) => {
+                    items.forEach(item => {
+                        const status = checkedItems[item] ? "Completed" : "To Do";
+                        // Escape commas in text
+                        const safeItem = `"${item.replace(/"/g, '""')}"`;
+                        csvContent += `${category},${safeItem},${status}\n`;
+                    });
+                });
+
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "GitHub_Student_Pack_Tracker.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            const resetProgress = () => {
+                if(confirm("Are you sure you want to reset your progress?")) {
+                    setCheckedItems({});
+                }
+            };
+
+            // Calculate Progress
+            const totalItems = Object.values(initialData).flat().length;
+            const completedItems = Object.values(checkedItems).filter(Boolean).length;
+            const progress = Math.round((completedItems / totalItems) * 100);
+
+            return (
+                <div className="max-w-4xl mx-auto p-6">
+                    <header className="mb-8 text-center">
+                        <div className="flex justify-center mb-4">
+                            <i className="fab fa-github text-5xl text-gray-800"></i>
+                        </div>
+                        <h1 className="text-3xl font-bold text-gray-800 mb-2">GitHub Student Developer Pack</h1>
+                        <p className="text-gray-600">Resource Tracker & Checklist</p>
+                        
+                        <div className="mt-6 bg-white p-4 rounded-lg shadow-sm border border-gray-200 sticky top-2 z-10">
+                            <div className="flex justify-between text-sm font-semibold text-gray-700 mb-1">
+                                <span>Progress</span>
+                                <span>{progress}% ({completedItems}/{totalItems})</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                <div className="bg-green-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                            </div>
+                            <div className="flex justify-center gap-4 mt-4">
+                                <button onClick={downloadCSV} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm transition">
+                                    <i className="fas fa-file-csv"></i> Export to Excel (CSV)
+                                </button>
+                                <button onClick={resetProgress} className="flex items-center gap-2 text-gray-500 hover:text-red-600 px-4 py-2 rounded-md text-sm transition">
+                                    <i className="fas fa-trash"></i> Reset
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="space-y-8">
+                        {Object.entries(initialData).map(([category, items]) => (
+                            <section key={category} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                                    <h2 className="text-xl font-bold text-gray-800">{category}</h2>
+                                    <span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-1 rounded-full">
+                                        {items.filter(i => checkedItems[i]).length} / {items.length}
+                                    </span>
+                                </div>
+                                <div className="divide-y divide-gray-100">
+                                    {items.map((item) => (
+                                        <label key={item} className="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition group">
+                                            <div className="checkbox-wrapper relative flex items-center justify-center w-6 h-6 mr-4">
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="peer appearance-none w-full h-full border-2 border-gray-300 rounded md:rounded-md checked:bg-green-500 checked:border-green-500 cursor-pointer transition"
+                                                    checked={!!checkedItems[item]}
+                                                    onChange={() => handleToggle(item)}
+                                                />
+                                                <div className="absolute inset-0 hidden pointer-events-none text-white flex items-center justify-center peer-checked:flex">
+                                                    <i className="fas fa-check text-xs"></i>
+                                                </div>
+                                            </div>
+                                            <span className={`flex-1 text-sm md:text-base transition ${checkedItems[item] ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+                                                {item}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </section>
+                        ))}
+                    </div>
+                    
+                    <footer className="mt-12 text-center text-gray-500 text-sm pb-8">
+                        <p>Data stored locally in your browser.</p>
+                    </footer>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
