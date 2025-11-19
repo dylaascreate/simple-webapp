@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kana Quest - Learn Japanese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #fdf6f6; /* Soft pinkish white */
+            touch-action: manipulation;
+        }
+        .jp-font {
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        /* Custom animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake-anim {
+            animation: shake 0.3s ease-in-out;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .pop-anim {
+            animation: pop 0.2s ease-in-out;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 selection:bg-rose-200 selection:text-rose-900">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-rose-100 px-4 py-3 sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="app.goHome()">
+                <div class="bg-rose-500 text-white p-1.5 rounded-lg">
+                    <i data-lucide="languages" class="w-5 h-5"></i>
+                </div>
+                <h1 class="font-bold text-xl tracking-tight text-slate-800">Kana<span class="text-rose-500">Quest</span></h1>
+            </div>
+            <button onclick="app.toggleReference()" class="p-2 hover:bg-rose-50 rounded-full transition-colors text-slate-600" title="Reference Chart">
+                <i data-lucide="book-open" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex flex-col items-center justify-start pt-6 px-4 pb-8 max-w-3xl mx-auto w-full relative">
+        
+        <!-- Reference Chart Modal (Hidden by default) -->
+        <div id="reference-modal" class="hidden fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div class="bg-white rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                    <h2 class="font-bold text-lg text-slate-700">Kana Reference Chart</h2>
+                    <button onclick="app.toggleReference()" class="p-2 hover:bg-slate-200 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div class="overflow-y-auto p-6 bg-slate-50/50">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Hiragana Section -->
+                        <div>
+                            <h3 class="text-rose-600 font-bold mb-4 text-center text-xl border-b-2 border-rose-100 pb-2">Hiragana (ひらがな)</h3>
+                            <div class="grid grid-cols-5 gap-2" id="hiragana-chart">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                        <!-- Katakana Section -->
+                        <div>
+                            <h3 class="text-blue-600 font-bold mb-4 text-center text-xl border-b-2 border-blue-100 pb-2">Katakana (カタカナ)</h3>
+                            <div class="grid grid-cols-5 gap-2" id="katakana-chart">
+                                <!-- Filled by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Home Menu -->
+        <div id="view-home" class="w-full flex flex-col items-center gap-6 fade-in">
+            <div class="text-center mt-8 mb-4">
+                <h2 class="text-3xl md:text-4xl font-black text-slate-800 mb-2">Master Japanese</h2>
+                <p class="text-slate-500 text-lg">Choose a script to start practicing</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                <!-- Hiragana Card -->
+                <button onclick="app.startGame('hiragana')" class="group relative overflow-hidden bg-white p-6 rounded-2xl card-shadow hover:shadow-xl transition-all hover:-translate-y-1 border border-transparent hover:border-rose-200 text-left">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="text-6xl font-bold text-rose-500 jp-font">あ</span>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-4">
+                            <span class="font-bold text-xl jp-font">あ</span>
+                        </div>
+                        <h3 class="font-bold text-xl text-slate-800">Hiragana</h3>
+                        <p class="text-sm text-slate-500 mt-1">The basic alphabet. Start here!</p>
+                    </div>
+                </button>
+
+                <!-- Katakana Card -->
+                <button onclick="app.startGame('katakana')" class="group relative overflow-hidden bg-white p-6 rounded-2xl card-shadow hover:shadow-xl transition-all hover:-translate-y-1 border border-transparent hover:border-blue-200 text-left">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="text-6xl font-bold text-blue-500 jp-font">ア</span>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                            <span class="font-bold text-xl jp-font">ア</span>
+                        </div>
+                        <h3 class="font-bold text-xl text-slate-800">Katakana</h3>
+                        <p class="text-sm text-slate-500 mt-1">For foreign words & names.</p>
+                    </div>
+                </button>
+
+                <!-- Mixed Card -->
+                <button onclick="app.startGame('mixed')" class="group relative overflow-hidden bg-white p-6 rounded-2xl card-shadow hover:shadow-xl transition-all hover:-translate-y-1 border border-transparent hover:border-purple-200 text-left">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="text-6xl font-bold text-purple-500 jp-font">mix</span>
+                    </div>
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-4">
+                            <i data-lucide="shuffle" class="w-6 h-6"></i>
+                        </div>
+                        <h3 class="font-bold text-xl text-slate-800">Mixed Mode</h3>
+                        <p class="text-sm text-slate-500 mt-1">Challenge yourself with both.</p>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Stats Teaser -->
+            <div class="mt-8 bg-white rounded-xl p-4 w-full card-shadow flex justify-between items-center">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Streak</p>
+                    <p class="text-2xl font-black text-slate-800" id="home-streak">0 🔥</p>
+                </div>
+                <div>
+                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider text-right">Total Correct</p>
+                    <p class="text-2xl font-black text-slate-800 text-right" id="home-score">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Game -->
+        <div id="view-game" class="hidden w-full max-w-lg flex-col items-center fade-in">
+            
+            <!-- Game Header -->
+            <div class="w-full flex justify-between items-center mb-6">
+                <button onclick="app.goHome()" class="text-slate-400 hover:text-slate-600 flex items-center gap-1 text-sm font-bold transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i> Quit
+                </button>
+                <div class="flex gap-4">
+                    <div class="bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100 flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400">STREAK</span>
+                        <span class="font-bold text-orange-500" id="game-streak">0</span>
+                    </div>
+                    <div class="bg-white px-3 py-1 rounded-full shadow-sm border border-slate-100 flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-400">SCORE</span>
+                        <span class="font-bold text-slate-700" id="game-score">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full h-2 bg-slate-200 rounded-full mb-8 overflow-hidden">
+                <div id="timer-bar" class="h-full bg-rose-500 rounded-full transition-all duration-1000 w-full"></div>
+            </div>
+
+            <!-- Character Card -->
+            <div class="relative w-full bg-white rounded-3xl card-shadow p-12 mb-8 flex flex-col items-center justify-center min-h-[250px] transition-transform" id="card-container">
+                <span id="game-type-label" class="absolute top-4 right-4 text-xs font-bold px-2 py-1 rounded bg-slate-100 text-slate-500 uppercase">Hiragana</span>
+                <div id="question-char" class="text-9xl font-black text-slate-800 jp-font mb-2 transition-all">あ</div>
+                <p class="text-slate-400 text-sm font-medium">What is this character?</p>
+            </div>
+
+            <!-- Options Grid -->
+            <div class="grid grid-cols-2 gap-4 w-full" id="options-grid">
+                <!-- Options injected here -->
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="feedback-overlay" class="hidden absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+                <div id="feedback-message" class="bg-white shadow-2xl rounded-xl px-8 py-4 text-2xl font-bold transform scale-0 transition-transform duration-200 border-2">
+                    Correct!
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // --- Data: Gojuon (The 46 Basic Sounds) ---
+        const kanaData = [
+            { r: 'a', h: 'あ', k: 'ア' }, { r: 'i', h: 'い', k: 'イ' }, { r: 'u', h: 'う', k: 'ウ' }, { r: 'e', h: 'え', k: 'エ' }, { r: 'o', h: 'お', k: 'オ' },
+            { r: 'ka', h: 'か', k: 'カ' }, { r: 'ki', h: 'き', k: 'キ' }, { r: 'ku', h: 'く', k: 'ク' }, { r: 'ke', h: 'け', k: 'ケ' }, { r: 'ko', h: 'こ', k: 'コ' },
+            { r: 'sa', h: 'さ', k: 'サ' }, { r: 'shi', h: 'し', k: 'シ' }, { r: 'su', h: 'す', k: 'ス' }, { r: 'se', h: 'せ', k: 'セ' }, { r: 'so', h: 'そ', k: 'ソ' },
+            { r: 'ta', h: 'た', k: 'タ' }, { r: 'chi', h: 'ち', k: 'チ' }, { r: 'tsu', h: 'つ', k: 'ツ' }, { r: 'te', h: 'て', k: 'テ' }, { r: 'to', h: 'と', k: 'ト' },
+            { r: 'na', h: 'な', k: 'ナ' }, { r: 'ni', h: 'に', k: 'ニ' }, { r: 'nu', h: 'ぬ', k: 'ヌ' }, { r: 'ne', h: 'ね', k: 'ネ' }, { r: 'no', h: 'の', k: 'ノ' },
+            { r: 'ha', h: 'は', k: 'ハ' }, { r: 'hi', h: 'ひ', k: 'ヒ' }, { r: 'fu', h: 'ふ', k: 'フ' }, { r: 'he', h: 'へ', k: 'ヘ' }, { r: 'ho', h: 'ほ', k: 'ホ' },
+            { r: 'ma', h: 'ま', k: 'マ' }, { r: 'mi', h: 'み', k: 'ミ' }, { r: 'mu', h: 'む', k: 'ム' }, { r: 'me', h: 'め', k: 'メ' }, { r: 'mo', h: 'も', k: 'モ' },
+            { r: 'ya', h: 'や', k: 'ヤ' }, { r: 'yu', h: 'ゆ', k: 'ユ' }, { r: 'yo', h: 'よ', k: 'ヨ' },
+            { r: 'ra', h: 'ら', k: 'ラ' }, { r: 'ri', h: 'り', k: 'リ' }, { r: 'ru', h: 'る', k: 'ル' }, { r: 're', h: 'れ', k: 'レ' }, { r: 'ro', h: 'ろ', k: 'ロ' },
+            { r: 'wa', h: 'わ', k: 'ワ' }, { r: 'wo', h: 'を', k: 'ヲ' },
+            { r: 'n', h: 'ん', k: 'ン' }
+        ];
+
+        // --- Application Logic ---
+        const app = {
+            state: {
+                mode: 'home', // home, game
+                gameType: 'hiragana', // hiragana, katakana, mixed
+                currentQuestion: null,
+                score: 0,
+                streak: 0,
+                history: [], // Last few questions to avoid immediate repeats
+                isAnswering: false
+            },
+
+            init() {
+                lucide.createIcons();
+                this.loadStats();
+                this.renderReferenceChart();
+            },
+
+            loadStats() {
+                const savedScore = localStorage.getItem('kanaQuestScore') || 0;
+                const savedStreak = localStorage.getItem('kanaQuestStreak') || 0;
+                document.getElementById('home-score').innerText = savedScore;
+                document.getElementById('home-streak').innerText = savedStreak + " 🔥";
+            },
+
+            saveStats() {
+                localStorage.setItem('kanaQuestScore', document.getElementById('home-score').innerText);
+                localStorage.setItem('kanaQuestStreak', parseInt(document.getElementById('home-streak').innerText));
+            },
+
+            toggleReference() {
+                const modal = document.getElementById('reference-modal');
+                if (modal.classList.contains('hidden')) {
+                    modal.classList.remove('hidden');
+                } else {
+                    modal.classList.add('hidden');
+                }
+            },
+
+            renderReferenceChart() {
+                const hContainer = document.getElementById('hiragana-chart');
+                const kContainer = document.getElementById('katakana-chart');
+
+                kanaData.forEach(item => {
+                    const cellClass = "flex flex-col items-center justify-center p-2 bg-white rounded shadow-sm border border-slate-100";
+                    
+                    // Hiragana
+                    const hDiv = document.createElement('div');
+                    hDiv.className = cellClass;
+                    hDiv.innerHTML = `<span class="text-xl font-bold text-slate-700 jp-font">${item.h}</span><span class="text-xs text-slate-400 font-bold uppercase">${item.r}</span>`;
+                    hContainer.appendChild(hDiv);
+
+                    // Katakana
+                    const kDiv = document.createElement('div');
+                    kDiv.className = cellClass;
+                    kDiv.innerHTML = `<span class="text-xl font-bold text-slate-700 jp-font">${item.k}</span><span class="text-xs text-slate-400 font-bold uppercase">${item.r}</span>`;
+                    kContainer.appendChild(kDiv);
+                });
+            },
+
+            startGame(type) {
+                this.state.gameType = type;
+                this.state.mode = 'game';
+                this.state.score = 0;
+                this.state.streak = 0;
+                
+                document.getElementById('game-score').innerText = '0';
+                document.getElementById('game-streak').innerText = '0';
+
+                document.getElementById('view-home').classList.add('hidden');
+                document.getElementById('view-game').classList.remove('hidden');
+                document.getElementById('view-game').classList.add('flex');
+
+                this.nextQuestion();
+            },
+
+            goHome() {
+                this.state.mode = 'home';
+                document.getElementById('view-game').classList.add('hidden');
+                document.getElementById('view-game').classList.remove('flex');
+                document.getElementById('view-home').classList.remove('hidden');
+                this.loadStats(); // Refresh displayed stats
+            },
+
+            getRandomKana() {
+                let type = this.state.gameType;
+                if (type === 'mixed') {
+                    type = Math.random() > 0.5 ? 'hiragana' : 'katakana';
+                }
+
+                // Filter out recently shown to prevent immediate repetition
+                const candidates = kanaData.filter(k => !this.state.history.includes(k.r));
+                const data = candidates[Math.floor(Math.random() * candidates.length)] || kanaData[Math.floor(Math.random() * kanaData.length)];
+
+                // Add to history
+                this.state.history.push(data.r);
+                if (this.state.history.length > 5) this.state.history.shift();
+
+                return {
+                    data: data,
+                    displayType: type
+                };
+            },
+
+            nextQuestion() {
+                this.state.isAnswering = false;
+                const q = this.getRandomKana();
+                this.state.currentQuestion = q;
+
+                // UI Update
+                const charDisplay = document.getElementById('question-char');
+                const typeLabel = document.getElementById('game-type-label');
+                const container = document.getElementById('card-container');
+
+                // Animation reset
+                container.classList.remove('shake-anim', 'pop-anim');
+                void container.offsetWidth; // Trigger reflow
+                container.classList.add('pop-anim');
+
+                if (q.displayType === 'hiragana') {
+                    charDisplay.innerText = q.data.h;
+                    typeLabel.innerText = "Hiragana";
+                    typeLabel.className = "absolute top-4 right-4 text-xs font-bold px-2 py-1 rounded bg-rose-100 text-rose-500 uppercase";
+                } else {
+                    charDisplay.innerText = q.data.k;
+                    typeLabel.innerText = "Katakana";
+                    typeLabel.className = "absolute top-4 right-4 text-xs font-bold px-2 py-1 rounded bg-blue-100 text-blue-500 uppercase";
+                }
+
+                // Generate Options
+                const correctAnswer = q.data.r;
+                let options = [correctAnswer];
+                
+                while (options.length < 4) {
+                    const randomK = kanaData[Math.floor(Math.random() * kanaData.length)].r;
+                    if (!options.includes(randomK)) options.push(randomK);
+                }
+
+                // Shuffle
+                options.sort(() => Math.random() - 0.5);
+
+                // Render Buttons
+                const grid = document.getElementById('options-grid');
+                grid.innerHTML = '';
+                
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "bg-white border-2 border-slate-100 rounded-xl p-4 text-xl font-bold text-slate-600 hover:border-slate-300 hover:bg-slate-50 active:scale-95 transition-all shadow-sm";
+                    btn.innerText = opt;
+                    btn.onclick = () => this.checkAnswer(opt, btn);
+                    grid.appendChild(btn);
+                });
+            },
+
+            checkAnswer(selected, btnElement) {
+                if (this.state.isAnswering) return;
+                this.state.isAnswering = true;
+
+                const correct = this.state.currentQuestion.data.r;
+                const isCorrect = selected === correct;
+                const grid = document.getElementById('options-grid');
+
+                if (isCorrect) {
+                    // Visuals
+                    btnElement.classList.remove('border-slate-100', 'text-slate-600');
+                    btnElement.classList.add('bg-green-500', 'border-green-500', 'text-white', 'shadow-lg');
+                    
+                    // Logic
+                    this.state.score += 10 + (this.state.streak * 2);
+                    this.state.streak++;
+                    this.showFeedback(true);
+
+                    // Update Global Stats
+                    let totalScore = parseInt(localStorage.getItem('kanaQuestScore') || 0) + 1;
+                    localStorage.setItem('kanaQuestScore', totalScore);
+                    let maxStreak = parseInt(localStorage.getItem('kanaQuestStreak') || 0);
+                    if (this.state.streak > maxStreak) {
+                        localStorage.setItem('kanaQuestStreak', this.state.streak);
+                    }
+
+                } else {
+                    // Visuals
+                    btnElement.classList.remove('border-slate-100', 'text-slate-600');
+                    btnElement.classList.add('bg-red-500', 'border-red-500', 'text-white');
+                    
+                    // Shake card
+                    const card = document.getElementById('card-container');
+                    card.classList.remove('pop-anim');
+                    void card.offsetWidth;
+                    card.classList.add('shake-anim');
+
+                    // Highlight correct answer
+                    Array.from(grid.children).forEach(child => {
+                        if (child.innerText === correct) {
+                            child.classList.remove('border-slate-100', 'text-slate-600');
+                            child.classList.add('bg-green-100', 'border-green-500', 'text-green-700');
+                        }
+                    });
+
+                    // Logic
+                    this.state.streak = 0;
+                    this.showFeedback(false);
+                }
+
+                // Update UI Stats
+                document.getElementById('game-score').innerText = this.state.score;
+                document.getElementById('game-streak').innerText = this.state.streak;
+
+                // Next Round Delay
+                setTimeout(() => {
+                    this.nextQuestion();
+                }, 1200);
+            },
+
+            showFeedback(isCorrect) {
+                // Currently using button colors for primary feedback, but we can add sound or floating text here if needed.
+            }
+        };
+
+        // Initialize
+        window.onload = () => app.init();
+
+    </script>
+</body>
+</html>

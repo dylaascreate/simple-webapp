@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hanzi Hero - Learn Chinese</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&display=swap');
+        
+        /* Custom Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        @keyframes bounce-custom {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-bounce-custom {
+            animation: bounce-custom 0.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0%, 100% { color: #ef4444; }
+            50% { color: #b91c1c; }
+        }
+        .animate-pulse-red {
+            animation: pulse-red 1s infinite;
+        }
+
+        /* Utility for hiding elements */
+        .hidden-screen {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 font-sans text-gray-800 selection:bg-red-100 selection:text-red-900">
+
+    <div class="max-w-3xl mx-auto px-4 py-6 md:py-12 flex flex-col min-h-screen">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6 md:mb-8 opacity-80 hover:opacity-100 transition-opacity">
+            <div class="flex items-center gap-2 text-red-700">
+                <div class="bg-red-600 text-white p-1.5 rounded-lg font-serif font-bold text-xl">汉</div>
+                <span class="font-bold tracking-wide">HANZI HERO</span>
+            </div>
+            <div class="text-xs font-medium text-gray-400">HSK Level 1</div>
+        </header>
+
+        <main id="app-container" class="flex-1 flex flex-col relative">
+            
+            <!-- SCREEN: START MENU -->
+            <div id="start-screen" class="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8 animate-fade-in">
+                <div class="relative">
+                    <div class="absolute -inset-4 bg-red-500 rounded-full opacity-20 blur-xl animate-pulse"></div>
+                    <h1 class="relative text-6xl md:text-8xl font-bold text-red-600 drop-shadow-md tracking-tight mb-2 font-serif">
+                        汉字英雄
+                    </h1>
+                    <h2 class="text-2xl text-gray-600 font-medium tracking-widest uppercase">Hanzi Hero</h2>
+                </div>
+                
+                <div class="max-w-md p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-red-100">
+                    <p class="text-gray-600 mb-4">
+                        Master Mandarin vocabulary through rapid-fire challenges. 
+                        Match Pinyin, English, and Characters before time runs out!
+                    </p>
+                    <div class="grid grid-cols-3 gap-4 text-sm text-gray-500 mb-6">
+                        <div class="flex flex-col items-center">
+                            <!-- Brain Icon -->
+                            <svg class="w-6 h-6 text-red-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            <span>Recall</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <!-- Flame Icon -->
+                            <svg class="w-6 h-6 text-orange-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"></path></svg>
+                            <span>Streaks</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <!-- Trophy Icon -->
+                            <svg class="w-6 h-6 text-yellow-500 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 21h8M12 17a9.003 9.003 0 008.354-5.646 4.992 4.992 0 00-6.354-6.354 8.966 8.966 0 00-1.646.646M12 2a9 9 0 00-9 9 4.987 4.987 0 005.292 4.823A8.966 8.966 0 0012 21z"></path></svg> <!-- Using Clock for Rank Up/Speed -->
+                            <span>Speed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="game.start()" class="group relative px-8 py-4 bg-red-600 text-white rounded-full text-xl font-bold shadow-lg hover:bg-red-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-200 overflow-hidden">
+                    <span class="relative z-10 flex items-center gap-2">
+                        <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Start Game
+                    </span>
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                </button>
+            </div>
+
+            <!-- SCREEN: GAMEPLAY -->
+            <div id="game-screen" class="hidden-screen flex flex-col h-full animate-fade-in">
+                <!-- HUD -->
+                <div class="w-full flex justify-between items-center p-4 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 mb-6">
+                    <div class="flex items-center gap-4">
+                        <!-- Lives -->
+                        <div class="flex items-center gap-1.5">
+                            <svg id="heart-icon" class="w-6 h-6 text-red-500 transition-all" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                            <span id="lives-display" class="text-xl font-bold text-gray-700">3</span>
+                        </div>
+                        <div class="w-px h-8 bg-gray-200 mx-2"></div>
+                        <!-- Streak -->
+                        <div class="flex items-center gap-1.5">
+                            <svg id="streak-icon" class="w-6 h-6 text-gray-300 transition-colors" fill="currentColor" viewBox="0 0 24 24"><path d="M17.66 11.2c-.23-.3-.51-.56-.77-.82-.67-.6-1.43-1.03-2.07-1.66C13.33 7.26 13 4.85 13.95 3c-.95.23-1.78.75-2.49 1.32-2.59 2.08-3.61 5.75-2.39 8.9.04.1.08.2.08.33 0 .22-.15.42-.35.5-.23.1-.47.04-.66-.12a.58.58 0 01-.14-.17c-1.13-1.43-1.31-3.48-.55-5.12C5.78 10.03 4.25 12.3 4.1 14.87c-.05.83.12 1.65.51 2.39a8.15 8.15 0 008.14 4.8c3.57-.05 6.85-2.5 7.74-5.97.41-1.58.21-3.35-.83-4.89zM12 19c-1.38 0-2.5-1.12-2.5-2.5S10.62 14 12 14s2.5 1.12 2.5 2.5S13.38 19 12 19z"/></svg>
+                            <span id="streak-display" class="text-xl font-bold text-gray-700">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Timer Bar (Desktop) -->
+                    <div class="flex-1 mx-8 hidden md:block">
+                        <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+                            <div id="timer-bar" class="h-full bg-emerald-500 transition-all duration-100 ease-linear" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Score -->
+                    <div class="flex flex-col items-end">
+                        <span class="text-xs text-gray-500 uppercase font-semibold">Score</span>
+                        <span id="score-display" class="text-2xl font-bold text-gray-800 tabular-nums">0</span>
+                    </div>
+                </div>
+
+                <!-- Main Game Area -->
+                <div class="flex-1 flex flex-col justify-center">
+                    
+                    <!-- Card -->
+                    <div id="card-container" class="relative bg-white rounded-3xl shadow-xl border-2 border-red-50 p-8 md:p-12 flex flex-col items-center justify-center mb-8 transform transition-all duration-300">
+                        <div id="card-label" class="absolute top-4 left-1/2 -translate-x-1/2 bg-red-50 text-red-800 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase">
+                            What is this?
+                        </div>
+                        <div class="text-center space-y-2">
+                            <h2 id="card-main-text" class="text-7xl md:text-9xl font-serif font-bold text-gray-800 mb-2 transition-all duration-300">
+                                <!-- Dynamic Content -->
+                            </h2>
+                            <p id="card-sub-text" class="text-xl md:text-2xl text-gray-500 font-medium h-8">
+                                <!-- Dynamic Content -->
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Options Grid -->
+                    <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                        <!-- Buttons generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN: GAME OVER -->
+            <div id="game-over-screen" class="hidden-screen flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 animate-fade-in">
+                <div id="game-over-emoji" class="text-8xl mb-2">📝</div>
+                <h2 class="text-4xl font-bold text-gray-800">Game Over</h2>
+                
+                <div class="grid grid-cols-2 gap-4 w-full max-w-xs">
+                    <div class="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+                        <div class="text-sm text-gray-500 uppercase tracking-wider">Score</div>
+                        <div id="final-score" class="text-3xl font-bold text-red-600">0</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl shadow-md border border-gray-100">
+                        <div class="text-sm text-gray-500 uppercase tracking-wider">Best</div>
+                        <div id="high-score" class="text-3xl font-bold text-yellow-600">0</div>
+                    </div>
+                </div>
+
+                <button onclick="game.start()" class="flex items-center gap-2 px-8 py-3 bg-gray-800 text-white rounded-full text-lg font-semibold shadow-lg hover:bg-gray-900 transition-colors mt-8">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg> Play Again
+                </button>
+            </div>
+
+        </main>
+
+        <footer class="mt-8 text-center text-gray-400 text-xs md:text-sm py-4">
+            <p>© 2025 Hanzi Hero. Learning made simple.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const VOCABULARY = [
+            { hanzi: "你好", pinyin: "nǐ hǎo", meaning: "Hello" },
+            { hanzi: "谢谢", pinyin: "xiè xie", meaning: "Thank you" },
+            { hanzi: "不客气", pinyin: "bú kè qi", meaning: "You're welcome" },
+            { hanzi: "再见", pinyin: "zài jiàn", meaning: "Goodbye" },
+            { hanzi: "对不起", pinyin: "duì bu qǐ", meaning: "Sorry" },
+            { hanzi: "人", pinyin: "rén", meaning: "Person" },
+            { hanzi: "名字", pinyin: "míng zi", meaning: "Name" },
+            { hanzi: "书", pinyin: "shū", meaning: "Book" },
+            { hanzi: "水", pinyin: "shuǐ", meaning: "Water" },
+            { hanzi: "茶", pinyin: "chá", meaning: "Tea" },
+            { hanzi: "吃", pinyin: "chī", meaning: "To eat" },
+            { hanzi: "喝", pinyin: "hē", meaning: "To drink" },
+            { hanzi: "大", pinyin: "dà", meaning: "Big" },
+            { hanzi: "小", pinyin: "xiǎo", meaning: "Small" },
+            { hanzi: "好", pinyin: "hǎo", meaning: "Good" },
+            { hanzi: "多", pinyin: "duō", meaning: "Many/Much" },
+            { hanzi: "少", pinyin: "shǎo", meaning: "Few/Little" },
+            { hanzi: "今天", pinyin: "jīn tiān", meaning: "Today" },
+            { hanzi: "明天", pinyin: "míng tiān", meaning: "Tomorrow" },
+            { hanzi: "昨天", pinyin: "zuó tiān", meaning: "Yesterday" },
+            { hanzi: "一", pinyin: "yī", meaning: "One" },
+            { hanzi: "二", pinyin: "èr", meaning: "Two" },
+            { hanzi: "三", pinyin: "sān", meaning: "Three" },
+            { hanzi: "中国", pinyin: "zhōng guó", meaning: "China" },
+            { hanzi: "朋友", pinyin: "péng you", meaning: "Friend" },
+            { hanzi: "猫", pinyin: "māo", meaning: "Cat" },
+            { hanzi: "狗", pinyin: "gǒu", meaning: "Dog" },
+            { hanzi: "喜欢", pinyin: "xǐ huan", meaning: "To like" },
+            { hanzi: "爱", pinyin: "ài", meaning: "Love" },
+            { hanzi: "看", pinyin: "kàn", meaning: "To look/watch" },
+            { hanzi: "听", pinyin: "tīng", meaning: "To listen" },
+            { hanzi: "说", pinyin: "shuō", meaning: "To speak" },
+            { hanzi: "写", pinyin: "xiě", meaning: "To write" },
+            { hanzi: "快乐", pinyin: "kuài lè", meaning: "Happy" },
+            { hanzi: "漂亮", pinyin: "piào liang", meaning: "Beautiful" },
+            { hanzi: "老师", pinyin: "lǎo shī", meaning: "Teacher" },
+            { hanzi: "学生", pinyin: "xué sheng", meaning: "Student" },
+            { hanzi: "医生", pinyin: "yī shēng", meaning: "Doctor" },
+            { hanzi: "学校", pinyin: "xué xiào", meaning: "School" },
+            { hanzi: "家", pinyin: "jiā", meaning: "Family/Home" }
+        ];
+
+        // --- UTILS ---
+        const shuffleArray = (array) => {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        };
+
+        const getRandomDistractors = (correctItem, allItems, count = 3) => {
+            const others = allItems.filter(item => item.hanzi !== correctItem.hanzi);
+            const shuffled = shuffleArray(others);
+            return shuffled.slice(0, count);
+        };
+
+        // --- GAME ENGINE ---
+        const game = {
+            state: {
+                score: 0,
+                highScore: 0,
+                lives: 3,
+                streak: 0,
+                round: 0,
+                timer: 15,
+                timerInterval: null,
+                currentWord: null,
+                mode: 'normal', // 'normal' or 'reverse'
+                isRevealed: false
+            },
+            consts: {
+                MAX_TIME: 15
+            },
+            
+            elements: {
+                screens: {
+                    start: document.getElementById('start-screen'),
+                    game: document.getElementById('game-screen'),
+                    over: document.getElementById('game-over-screen')
+                },
+                hud: {
+                    score: document.getElementById('score-display'),
+                    lives: document.getElementById('lives-display'),
+                    livesIcon: document.getElementById('heart-icon'),
+                    streak: document.getElementById('streak-display'),
+                    streakIcon: document.getElementById('streak-icon'),
+                    timerBar: document.getElementById('timer-bar')
+                },
+                card: {
+                    container: document.getElementById('card-container'),
+                    label: document.getElementById('card-label'),
+                    main: document.getElementById('card-main-text'),
+                    sub: document.getElementById('card-sub-text')
+                },
+                grid: document.getElementById('options-grid'),
+                final: {
+                    score: document.getElementById('final-score'),
+                    high: document.getElementById('high-score'),
+                    emoji: document.getElementById('game-over-emoji')
+                }
+            },
+
+            init() {
+                // Load high score from local storage if possible
+                const saved = localStorage.getItem('hanziHeroHighScore');
+                if(saved) this.state.highScore = parseInt(saved);
+            },
+
+            start() {
+                this.state.score = 0;
+                this.state.lives = 3;
+                this.state.streak = 0;
+                this.state.round = 0;
+                this.showScreen('game');
+                this.nextRound();
+            },
+
+            showScreen(screenName) {
+                Object.values(this.elements.screens).forEach(el => el.classList.add('hidden-screen'));
+                this.elements.screens[screenName].classList.remove('hidden-screen');
+            },
+
+            nextRound() {
+                this.state.isRevealed = false;
+                this.state.timer = this.consts.MAX_TIME;
+                this.state.round++;
+
+                // Reset Card Visuals
+                this.elements.card.container.classList.remove('scale-105', 'ring-4', 'ring-red-100');
+
+                // Pick word
+                const word = VOCABULARY[Math.floor(Math.random() * VOCABULARY.length)];
+                this.state.currentWord = word;
+
+                // Determine Mode (70% Normal - Hanzi to English/Pinyin)
+                this.state.mode = Math.random() > 0.3 ? 'normal' : 'reverse';
+
+                // Setup UI
+                this.updateHUD();
+                this.renderCard();
+                this.renderOptions(word);
+                this.startTimer();
+            },
+
+            renderCard() {
+                const { mode, currentWord } = this.state;
+                const { card } = this.elements;
+                
+                if (mode === 'normal') {
+                    card.label.textContent = "What is this character?";
+                    card.main.textContent = currentWord.hanzi;
+                    card.main.classList.remove('font-sans', 'text-4xl', 'md:text-5xl');
+                    card.main.classList.add('font-serif', 'text-7xl', 'md:text-9xl');
+                    card.sub.textContent = "";
+                } else {
+                    card.label.textContent = "Select the matching Hanzi";
+                    card.main.textContent = currentWord.meaning;
+                    card.main.classList.remove('font-serif', 'text-7xl', 'md:text-9xl');
+                    card.main.classList.add('font-sans', 'text-4xl', 'md:text-5xl');
+                    card.sub.textContent = currentWord.pinyin;
+                }
+            },
+
+            renderOptions(correctWord) {
+                const distractors = getRandomDistractors(correctWord, VOCABULARY, 3);
+                const options = shuffleArray([correctWord, ...distractors]);
+                const grid = this.elements.grid;
+                grid.innerHTML = ''; // Clear previous options
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    // Styling
+                    let baseClasses = "relative p-4 rounded-xl text-lg font-bold transition-all duration-200 border-2 shadow-sm transform active:scale-95 bg-white border-gray-100 text-gray-700 hover:border-red-300 hover:bg-red-50 hover:shadow-md hover:-translate-y-0.5 w-full";
+                    btn.className = baseClasses;
+
+                    // Content logic
+                    const mainText = this.state.mode === 'reverse' ? opt.hanzi : opt.meaning;
+                    const subText = this.state.mode === 'reverse' ? '' : opt.pinyin;
+                    const mainClass = this.state.mode === 'reverse' ? 'text-3xl font-serif' : 'text-lg';
+
+                    btn.innerHTML = `
+                        <div class="flex flex-col items-center justify-center h-full gap-1 pointer-events-none">
+                            <span class="${mainClass}">${mainText}</span>
+                            ${subText ? `<span class="text-sm font-normal text-gray-500 opacity-80">${subText}</span>` : ''}
+                        </div>
+                    `;
+
+                    btn.onclick = () => this.handleAnswer(opt, btn);
+                    grid.appendChild(btn);
+                });
+            },
+
+            startTimer() {
+                if (this.state.timerInterval) clearInterval(this.state.timerInterval);
+                
+                this.state.timerInterval = setInterval(() => {
+                    if (this.state.timer <= 0) {
+                        this.handleAnswer(null, null, true); // Timeout
+                        return;
+                    }
+                    this.state.timer -= 0.1;
+                    this.updateTimerVisuals();
+                }, 100);
+            },
+
+            updateTimerVisuals() {
+                const pct = (this.state.timer / this.consts.MAX_TIME) * 100;
+                const bar = this.elements.hud.timerBar;
+                bar.style.width = `${pct}%`;
+                
+                // Color shift
+                if (this.state.timer < 5) {
+                    bar.classList.remove('bg-emerald-500');
+                    bar.classList.add('bg-red-500');
+                } else {
+                    bar.classList.add('bg-emerald-500');
+                    bar.classList.remove('bg-red-500');
+                }
+            },
+
+            handleAnswer(selectedOption, btnElement, isTimeout = false) {
+                if (this.state.isRevealed) return;
+                this.state.isRevealed = true;
+                clearInterval(this.state.timerInterval);
+
+                let isCorrect = false;
+                if (!isTimeout && selectedOption && selectedOption.hanzi === this.state.currentWord.hanzi) {
+                    isCorrect = true;
+                }
+
+                // Update State
+                if (isCorrect) {
+                    const timeBonus = Math.ceil(this.state.timer * 10);
+                    const streakBonus = Math.min(this.state.streak, 5) * 20;
+                    this.state.score += (100 + timeBonus + streakBonus);
+                    this.state.streak++;
+                    
+                    // Visuals: Correct
+                    btnElement.className = "relative p-4 rounded-xl text-lg font-bold transition-all duration-200 border-2 shadow-md scale-[1.02] bg-emerald-100 border-emerald-500 text-emerald-800 w-full";
+                    // Add checkmark
+                    const check = document.createElement('div');
+                    check.className = "absolute top-2 right-2 text-emerald-600 animate-bounce";
+                    check.innerHTML = '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>';
+                    btnElement.appendChild(check);
+
+                    // Animate Card
+                    this.elements.card.container.classList.add('scale-105', 'ring-4', 'ring-red-100');
+
+                    setTimeout(() => this.nextRound(), 1200);
+                } else {
+                    this.state.lives--;
+                    this.state.streak = 0;
+                    
+                    // Visuals: Incorrect (if clicked)
+                    if (btnElement) {
+                        btnElement.className = "relative p-4 rounded-xl text-lg font-bold transition-all duration-200 border-2 shadow-sm opacity-50 bg-red-50 border-red-200 text-red-300 w-full";
+                    }
+                    
+                    // Highlight correct answer in the grid
+                    const buttons = Array.from(this.elements.grid.children);
+                    buttons.forEach(b => {
+                        // Check inner text to find the correct one (simplified matching)
+                        const correctMain = this.state.mode === 'reverse' ? this.state.currentWord.hanzi : this.state.currentWord.meaning;
+                        if(b.innerText.includes(correctMain)) {
+                            b.classList.remove('bg-white', 'border-gray-100', 'text-gray-700');
+                            b.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
+                        }
+                    });
+
+                    if (this.state.lives <= 0) {
+                        setTimeout(() => this.endGame(), 1500);
+                    } else {
+                        setTimeout(() => this.nextRound(), 1500);
+                    }
+                }
+                this.updateHUD();
+            },
+
+            updateHUD() {
+                const { score, lives, streak } = this.state;
+                const { hud } = this.elements;
+                
+                hud.score.textContent = score;
+                hud.lives.textContent = lives;
+                hud.streak.textContent = streak;
+
+                // Lives visual
+                if (lives < 2) {
+                    hud.livesIcon.classList.add('animate-pulse-red');
+                } else {
+                    hud.livesIcon.classList.remove('animate-pulse-red');
+                }
+
+                // Streak visual
+                if (streak > 4) {
+                    hud.streakIcon.classList.add('text-orange-500', 'animate-bounce-custom');
+                    hud.streak.classList.add('text-orange-500');
+                    hud.streakIcon.classList.remove('text-gray-300');
+                } else if (streak > 0) {
+                    hud.streakIcon.classList.add('text-orange-500');
+                    hud.streakIcon.classList.remove('text-gray-300');
+                    hud.streak.classList.remove('text-orange-500');
+                } else {
+                    hud.streakIcon.classList.remove('text-orange-500', 'animate-bounce-custom');
+                    hud.streakIcon.classList.add('text-gray-300');
+                    hud.streak.classList.remove('text-orange-500');
+                }
+            },
+
+            endGame() {
+                clearInterval(this.state.timerInterval);
+                
+                if (this.state.score > this.state.highScore) {
+                    this.state.highScore = this.state.score;
+                    localStorage.setItem('hanziHeroHighScore', this.state.highScore);
+                }
+
+                this.elements.final.score.textContent = this.state.score;
+                this.elements.final.high.textContent = this.state.highScore;
+                
+                // Set Emoji based on score
+                const s = this.state.score;
+                this.elements.final.emoji.textContent = s > 2000 ? '🏆' : s > 1000 ? '🌟' : '📝';
+
+                this.showScreen('over');
+            }
+        };
+
+        // Initialize on load
+        game.init();
+
+    </script>
+</body>
+</html>
