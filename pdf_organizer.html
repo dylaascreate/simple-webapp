@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Organizer</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- PDF Lib (For manipulation) -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    
+    <!-- PDF.js (For rendering thumbnails) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <!-- SortableJS (For Drag and Drop) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .ghost {
+            opacity: 0.5;
+            background: #e5e7eb;
+            border: 2px dashed #9ca3af;
+        }
+        .page-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .page-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #3b82f6;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite; /* Safari */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; 
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden font-sans">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shrink-0 z-10 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="bg-brand-50 p-2 rounded-lg">
+                <i data-lucide="files" class="text-brand-600 w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-xl text-slate-800">PDF Organizer</h1>
+                <p class="text-xs text-slate-500">Upload, rearrange, and merge</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <input type="file" id="fileInput" multiple accept=".pdf" class="hidden">
+            <button onclick="document.getElementById('fileInput').click()" class="flex items-center gap-2 px-4 py-2 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-lg text-sm font-medium transition-colors">
+                <i data-lucide="plus" class="w-4 h-4"></i> Add PDFs
+            </button>
+            <button onclick="downloadMergedPdf()" id="downloadBtn" disabled class="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <i data-lucide="download" class="w-4 h-4"></i> Merge & Download
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar (Instructions / Status) -->
+        <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col p-6 shrink-0 overflow-y-auto">
+            <div class="space-y-6">
+                
+                <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <h3 class="font-semibold text-blue-900 mb-2 text-sm flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4"></i> How to use
+                    </h3>
+                    <ol class="list-decimal list-inside text-xs text-blue-800 space-y-2 ml-1">
+                        <li>Click <strong>Add PDFs</strong> to select files.</li>
+                        <li>Wait for pages to render.</li>
+                        <li><strong>Drag & Drop</strong> pages to reorder.</li>
+                        <li>Click the <strong>Trash</strong> icon on a page to remove it.</li>
+                        <li>Click <strong>Merge & Download</strong> to finish.</li>
+                    </ol>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-slate-700 text-sm mb-3">Stats</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Total Pages</span>
+                            <span id="pageCount" class="font-medium text-slate-800">0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-500">Source Files</span>
+                            <span id="fileCount" class="font-medium text-slate-800">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-auto">
+                    <button onclick="clearAll()" class="w-full py-2 px-3 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> Clear All
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Editor Area -->
+        <section class="flex-1 bg-slate-100 relative overflow-hidden flex flex-col">
+            
+            <!-- Drop Zone / Empty State -->
+            <div id="dropZone" class="absolute inset-0 z-0 flex flex-col items-center justify-center p-8 transition-colors">
+                <div id="emptyState" class="text-center">
+                    <div class="bg-white p-6 rounded-full shadow-sm inline-flex mb-4">
+                        <i data-lucide="upload-cloud" class="w-12 h-12 text-slate-400"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold text-slate-700 mb-2">Drop PDF files here</h2>
+                    <p class="text-slate-500 max-w-sm mx-auto mb-6">Or click the "Add PDFs" button in the top right to get started.</p>
+                </div>
+            </div>
+
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" class="hidden absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                <div class="loader mb-4"></div>
+                <p class="text-slate-700 font-medium animate-pulse">Processing PDF Pages...</p>
+                <p class="text-slate-500 text-sm mt-1">This happens locally in your browser.</p>
+            </div>
+
+            <!-- Pages Grid -->
+            <div id="pagesContainer" class="relative z-10 flex-1 overflow-y-auto p-8">
+                <div id="sortableGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 pb-20">
+                    <!-- Cards injected here -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Hidden Template for Page Card -->
+    <template id="pageCardTemplate">
+        <div class="page-card group relative bg-white rounded-lg shadow-sm border border-slate-200 cursor-grab active:cursor-grabbing aspect-[1/1.4] flex flex-col select-none">
+            <!-- Header/Delete -->
+            <div class="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button class="delete-btn bg-red-500 hover:bg-red-600 text-white p-1.5 rounded-full shadow-md transition-colors" title="Remove Page">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            
+            <!-- Page Number Badge -->
+            <div class="absolute bottom-2 left-2 z-10">
+                <span class="page-number bg-slate-800/70 text-white text-[10px] font-bold px-2 py-0.5 rounded-full backdrop-blur-sm">
+                    Page 1
+                </span>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="w-full h-full overflow-hidden rounded-lg p-2 flex items-center justify-center bg-slate-50">
+                <img class="page-thumb w-full h-full object-contain shadow-sm border border-slate-100 bg-white" alt="Page Thumbnail">
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // --- Initialization ---
+        
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // PDF.js Worker Setup
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // State
+        const loadedPdfs = []; // Array of ArrayBuffers
+        let totalFilesProcessed = 0;
+
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const sortableGrid = document.getElementById('sortableGrid');
+        const emptyState = document.getElementById('emptyState');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const pageCountEl = document.getElementById('pageCount');
+        const fileCountEl = document.getElementById('fileCount');
+        const dropZone = document.getElementById('dropZone');
+
+        // Initialize SortableJS
+        new Sortable(sortableGrid, {
+            animation: 150,
+            ghostClass: 'ghost',
+            onEnd: updateStats // Update stats/logic if needed after reorder
+        });
+
+        // --- Event Listeners ---
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        // Drag and Drop Zone Logic
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('bg-blue-50/50');
+        });
+
+        window.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            if(e.relatedTarget === null || !dropZone.contains(e.relatedTarget)) {
+                dropZone.classList.remove('bg-blue-50/50');
+            }
+        });
+
+        window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('bg-blue-50/50');
+            if (e.dataTransfer.files.length > 0) {
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+
+        // --- Core Functions ---
+
+        function handleFileSelect(event) {
+            handleFiles(event.target.files);
+            fileInput.value = ''; // Reset input
+        }
+
+        async function handleFiles(files) {
+            const pdfFiles = Array.from(files).filter(file => file.type === 'application/pdf');
+            
+            if (pdfFiles.length === 0) {
+                alert("Please upload valid PDF files.");
+                return;
+            }
+
+            setLoading(true);
+            emptyState.style.display = 'none';
+
+            try {
+                for (const file of pdfFiles) {
+                    await processPdfFile(file);
+                }
+                updateUI();
+            } catch (error) {
+                console.error("Error processing PDFs:", error);
+                alert("An error occurred while processing your PDF files.");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        async function processPdfFile(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            
+            // Store the raw PDF data
+            loadedPdfs.push({
+                data: arrayBuffer,
+                name: file.name
+            });
+            const pdfId = loadedPdfs.length - 1;
+            totalFilesProcessed++;
+
+            // Load document with PDF.js for rendering
+            // IMPORTANT: We use a copy (slice) here because PDF.js might transfer the buffer 
+            // to a worker thread, causing the original buffer to become detached and unusable for pdf-lib later.
+            const bufferClone = arrayBuffer.slice(0); 
+            const pdf = await pdfjsLib.getDocument(bufferClone).promise;
+
+            // Render each page
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                await renderPageThumbnail(pdf, pageNum, pdfId);
+            }
+        }
+
+        async function renderPageThumbnail(pdfDoc, pageNum, pdfId) {
+            const page = await pdfDoc.getPage(pageNum);
+            const scale = 0.5; // Scale down for thumbnail
+            const viewport = page.getViewport({ scale: scale });
+
+            // Create canvas for rendering
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            // Render PDF page into canvas context
+            await page.render({
+                canvasContext: context,
+                viewport: viewport
+            }).promise;
+
+            // Create Card Element
+            const template = document.getElementById('pageCardTemplate');
+            const clone = template.content.cloneNode(true);
+            const card = clone.querySelector('.page-card');
+            
+            // Set metadata
+            card.dataset.pdfId = pdfId;
+            card.dataset.pageIndex = pageNum - 1; // 0-based for pdf-lib
+
+            // Set Image source
+            const img = card.querySelector('.page-thumb');
+            img.src = canvas.toDataURL();
+
+            // Set Page Number Label
+            const label = card.querySelector('.page-number');
+            const fileName = loadedPdfs[pdfId].name;
+            const truncatedName = fileName.length > 15 ? fileName.substring(0, 12) + '...' : fileName;
+            label.textContent = `${truncatedName} - P${pageNum}`;
+
+            // Add delete functionality
+            const deleteBtn = card.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent drag start
+                card.remove();
+                updateStats();
+            });
+
+            sortableGrid.appendChild(card);
+        }
+
+        // --- Merging Logic ---
+
+        async function downloadMergedPdf() {
+            const cards = document.querySelectorAll('.page-card');
+            if (cards.length === 0) return;
+
+            setLoading(true);
+            const originalText = downloadBtn.innerHTML;
+            downloadBtn.innerHTML = `<div class="loader w-4 h-4 border-white border-t-transparent mr-2"></div> Processing...`;
+
+            try {
+                // Create new PDF
+                const mergedPdf = await PDFLib.PDFDocument.create();
+                
+                // Cache loaded documents to avoid reparsing same file multiple times
+                const pdfCache = {}; 
+
+                for (const card of cards) {
+                    const pdfId = card.dataset.pdfId;
+                    const pageIndex = parseInt(card.dataset.pageIndex);
+                    
+                    // Load source PDF if not already loaded in this batch
+                    if (!pdfCache[pdfId]) {
+                        const sourcePdfBytes = loadedPdfs[pdfId].data;
+                        pdfCache[pdfId] = await PDFLib.PDFDocument.load(sourcePdfBytes);
+                    }
+
+                    const sourcePdf = pdfCache[pdfId];
+                    
+                    // Copy page
+                    const [copiedPage] = await mergedPdf.copyPages(sourcePdf, [pageIndex]);
+                    mergedPdf.addPage(copiedPage);
+                }
+
+                // Serialize and Download
+                const pdfBytes = await mergedPdf.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `merged-document-${Date.now()}.pdf`;
+                link.click();
+
+            } catch (err) {
+                console.error("Merge error:", err);
+                alert("Failed to merge documents.");
+            } finally {
+                setLoading(false);
+                downloadBtn.innerHTML = originalText;
+            }
+        }
+
+        // --- Helper Functions ---
+
+        function updateUI() {
+            const hasPages = sortableGrid.children.length > 0;
+            if (hasPages) {
+                emptyState.style.display = 'none';
+                downloadBtn.disabled = false;
+            } else {
+                emptyState.style.display = 'block';
+                downloadBtn.disabled = true;
+            }
+            updateStats();
+        }
+
+        function updateStats() {
+            const count = sortableGrid.children.length;
+            pageCountEl.textContent = count;
+            fileCountEl.textContent = totalFilesProcessed;
+            
+            if (count === 0) {
+                emptyState.style.display = 'block';
+                downloadBtn.disabled = true;
+            }
+        }
+
+        function clearAll() {
+            if(confirm('Are you sure you want to clear all pages?')) {
+                sortableGrid.innerHTML = '';
+                loadedPdfs.length = 0;
+                totalFilesProcessed = 0;
+                updateUI();
+            }
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                loadingOverlay.classList.remove('hidden');
+                document.body.style.cursor = 'wait';
+            } else {
+                loadingOverlay.classList.add('hidden');
+                document.body.style.cursor = 'default';
+            }
+        }
+
+    </script>
+</body>
+</html>
