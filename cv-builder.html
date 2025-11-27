@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Builder</title>
+
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+
+        /* Print Styles */
+        @media print {
+            @page { margin: 0; size: auto; }
+            body { background: white; }
+            aside, header, .no-print, .floating-actions { display: none !important; }
+            main { margin: 0; padding: 0; overflow: visible; height: auto; }
+            .cv-paper { 
+                box-shadow: none; 
+                margin: 0; 
+                width: 100%; 
+                max-width: none; 
+                transform: none !important; 
+            }
+        }
+        
+        /* Transition for Editor Drawer */
+        #editor-drawer {
+            transition: width 0.3s ease, opacity 0.3s ease, transform 0.3s ease;
+        }
+        .drawer-closed {
+            width: 0 !important;
+            opacity: 0;
+            transform: translateX(-100%);
+            overflow: hidden;
+            border-right: none;
+        }
+    </style>
+</head>
+<body class="flex h-screen w-full bg-[#f8f9fc] text-slate-800 overflow-hidden">
+
+    <!-- 1. Left Sidebar: Navigation -->
+    <aside class="w-16 md:w-20 bg-white border-r border-slate-100 flex flex-col items-center py-6 gap-4 z-20 shrink-0 no-print">
+        <div class="w-8 h-8 rounded-full bg-purple-600 mb-4 flex items-center justify-center text-white font-bold">TL</div>
+        
+        <button class="p-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all">
+            <i data-lucide="home" class="w-5 h-5"></i>
+        </button>
+        
+        <button id="toggle-editor-btn" class="p-3 rounded-xl bg-purple-100 text-purple-600 border-2 border-purple-200 cursor-pointer transition-all">
+            <i data-lucide="file-text" class="w-5 h-5"></i>
+        </button>
+
+        <button class="p-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all">
+            <i data-lucide="user" class="w-5 h-5"></i>
+        </button>
+        
+        <button class="p-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all">
+            <i data-lucide="award" class="w-5 h-5"></i>
+        </button>
+        
+        <button class="p-3 rounded-xl text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all">
+            <i data-lucide="settings" class="w-5 h-5"></i>
+        </button>
+    </aside>
+
+    <!-- 2. Editor Column (Left Drawer) -->
+    <div id="editor-drawer" class="w-80 md:w-96 bg-white border-r border-slate-200 flex flex-col z-10 shadow-[4px_0_24px_rgba(0,0,0,0.02)] no-print">
+        <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10 min-w-[20rem]">
+            <h2 class="font-bold text-slate-800">CV Editor</h2>
+            <div class="flex items-center gap-2">
+                <span id="save-status" class="text-[10px] font-medium px-2 py-1 bg-green-50 text-green-600 rounded-full border border-green-100">Saved</span>
+                <button onclick="toggleEditor()" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="editor-content" class="flex-1 overflow-y-auto custom-scrollbar min-w-[20rem]">
+            <!-- Dynamic Form Content will be injected here -->
+        </div>
+    </div>
+
+    <!-- 3. Main Center Area: Canvas -->
+    <main class="flex-1 relative flex flex-col items-center bg-[#f0f2f5] overflow-y-auto h-full">
+        
+        <!-- Header Bar -->
+        <header class="w-full h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 no-print sticky top-0 z-10">
+            <div class="flex items-center gap-3">
+                <button id="mobile-menu-btn" onclick="toggleEditor()" class="p-2 bg-purple-50 text-purple-600 rounded-md hover:bg-purple-100 transition-colors hidden">
+                    <i data-lucide="menu" class="w-5 h-5"></i>
+                </button>
+                <h1 class="text-lg font-bold text-slate-800">CV Manager</h1>
+            </div>
+            
+            <div class="flex items-center gap-3 text-xs font-medium text-slate-500">
+                <span id="last-saved-time">Last saved: Just now</span>
+                <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-300 flex items-center justify-center">
+                    <i data-lucide="user" class="w-4 h-4 text-slate-500"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Floating Actions -->
+        <div class="absolute top-20 left-6 flex flex-col gap-2 z-10 floating-actions no-print">
+            <div class="group relative">
+                <button onclick="document.getElementById('pdf-upload').click()" class="w-10 h-10 bg-white rounded-lg shadow-sm border border-slate-200 flex items-center justify-center text-slate-600 hover:text-purple-600 hover:border-purple-200 transition-all">
+                    <i data-lucide="upload" class="w-4 h-4"></i>
+                </button>
+                <span class="absolute left-12 top-2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Upload PDF</span>
+                <input type="file" id="pdf-upload" class="hidden" accept=".pdf" onchange="handleFileUpload(this)">
+            </div>
+            
+            <div class="group relative">
+                <!-- <button onclick="window.print()" class="w-10 h-10 bg-purple-600 rounded-lg shadow-md shadow-purple-200 flex items-center justify-center text-white hover:bg-purple-700 transition-all">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                </button> -->
+                <button onclick="downloadCVasPDF()" class="w-10 h-10 bg-purple-600 rounded-lg shadow-md shadow-purple-200 flex items-center justify-center text-white hover:bg-purple-700 transition-all">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                </button>
+
+                <span class="absolute left-12 top-2 bg-slate-800 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Download PDF</span>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="notification" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-6 py-3 rounded-full shadow-lg text-white font-medium bg-slate-800 transition-opacity duration-300 opacity-0 pointer-events-none">
+            Notification
+        </div>
+
+        <!-- The CV Paper -->
+        <div class="my-8 w-full flex justify-center">
+            <div id="cv-preview" class="cv-paper w-[210mm] min-h-[297mm] bg-white shadow-xl p-[15mm] text-slate-900 transition-transform origin-top scale-[0.6] sm:scale-[0.7] md:scale-[0.8] lg:scale-[0.9] xl:scale-100">
+                <!-- CV Content will be injected here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- 4. Right Sidebar: AI Review -->
+    <aside class="hidden xl:flex w-80 bg-white border-l border-slate-200 flex-col z-10 shrink-0 no-print">
+        <div class="p-5 border-b border-slate-100">
+            <h2 class="font-bold text-slate-800 mb-1">AI CV Review</h2>
+            <p class="text-xs text-slate-400">Automated quality check</p>
+        </div>
+        
+        <div class="p-6 flex flex-col items-center border-b border-slate-100 bg-slate-50/50">
+            <!-- Grade Circle -->
+            <div class="relative w-16 h-16 flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90">
+                    <circle cx="32" cy="32" r="28" stroke="#e2e8f0" stroke-width="4" fill="transparent"></circle>
+                    <circle cx="32" cy="32" r="28" stroke="#10b981" stroke-width="4" fill="transparent" stroke-dasharray="175.9" stroke-dashoffset="17.59"></circle>
+                </svg>
+                <span class="absolute text-xl font-bold text-emerald-500">A</span>
+            </div>
+            <span class="mt-2 font-bold text-slate-800">Overall Grade</span>
+            <p class="text-[10px] text-center text-slate-500 mt-2 px-4">
+                The candidate presents a strong foundation in software engineering with practical experience.
+            </p>
+        </div>
+
+        <div class="p-5 flex-1 overflow-y-auto">
+            <h3 class="text-xs font-bold text-slate-900 mb-3">Analysis</h3>
+            <div class="space-y-4">
+                <div class="p-3 bg-emerald-50 rounded-lg border border-emerald-100">
+                    <div class="flex items-center gap-2 mb-1 text-emerald-700 font-semibold text-xs">
+                        <i data-lucide="award" class="w-3.5 h-3.5"></i> Strong Impact
+                    </div>
+                    <p class="text-[10px] text-emerald-600 leading-relaxed">
+                        Good use of action verbs like "Developed", "Administered", and "Engineered".
+                    </p>
+                </div>
+                
+                <div class="p-3 bg-purple-50 rounded-lg border border-purple-100">
+                    <div class="flex items-center gap-2 mb-1 text-purple-700 font-semibold text-xs">
+                        <i data-lucide="briefcase" class="w-3.5 h-3.5"></i> Relevancy
+                    </div>
+                    <p class="text-[10px] text-purple-600 leading-relaxed">
+                        Skills listed match the "Software Engineering" role title effectively.
+                    </p>
+                </div>
+
+                <div class="p-3 bg-amber-50 rounded-lg border border-amber-100">
+                    <div class="flex items-center gap-2 mb-1 text-amber-700 font-semibold text-xs">
+                        <i data-lucide="message-square" class="w-3.5 h-3.5"></i> Suggestion
+                    </div>
+                    <p class="text-[10px] text-amber-700 leading-relaxed">
+                        Consider adding metric-driven results (e.g., "Reduced load time by 20%") to your project descriptions.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4 border-t border-slate-100">
+            <div class="flex justify-between items-center text-xs font-medium text-slate-600 mb-2">
+                <span>Relevancy to job</span>
+                <span class="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded text-[10px]">Excellent</span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                <div class="w-[92%] h-full bg-emerald-500 rounded-full"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- Initial Data ---
+        const initialCV = {
+            personal: {
+                fullName: "Nurfadhilah bt Ab Hamid",
+                title: "Software Engineering Graduate",
+                email: "fadhilahabhamid35@gmail.com",
+                phone: "+60 12-345 6789",
+                location: "Kuala Lumpur, Malaysia",
+                linkedin: "linkedin.com/in/nurfadhilah",
+                summary: "Detail-oriented and motivated Software Engineering graduate with hands-on experience in full-stack web development, database management, and multimedia production. Proven ability to develop and maintain robust web applications using modern technologies like JavaScript, PHP, and CodeIgniter."
+            },
+            experience: [
+                {
+                    id: 1,
+                    role: "Assistant System Engineer & Web Developer",
+                    company: "Research Management and Innovation Centre, UPSI",
+                    location: "Tanjung Malim",
+                    startDate: "Nov 2023",
+                    endDate: "Feb 2025",
+                    description: "• Developed and maintained data management systems, optimizing database performance and ensuring efficient data storage.\n• Administered and optimized databases using Navicat, performing complex query tuning.\n• Engineered dynamic, responsive user interfaces for web applications using HTML, CSS, and JavaScript."
+                },
+                {
+                    id: 2,
+                    role: "Multimedia Producer",
+                    company: "Pusat Pembangunan Akademik, UPSI",
+                    location: "Tanjung Malim",
+                    startDate: "Nov 2022",
+                    endDate: "Nov 2023",
+                    description: "• Led the end-to-end production of 12 instructional MOOC video series, from initial concept and scripting to final editing.\n• Edited and assembled raw video footage using Wondershare Filmora to create engaging narratives."
+                }
+            ],
+            education: [
+                {
+                    id: 1,
+                    degree: "Bachelor of Science in Software Engineering",
+                    school: "Universiti Pendidikan Sultan Idris",
+                    location: "Perak",
+                    year: "Sep 2022 - Nov 2026",
+                    details: "CGPA 3.83 • Relevant Coursework: Software Engineering, Database Systems, Web Application Development."
+                },
+                {
+                    id: 2,
+                    degree: "Diploma in Computer Science",
+                    school: "Universiti Pendidikan Sultan Idris",
+                    location: "Perak",
+                    year: "Sep 2019 - Sep 2021",
+                    details: "CGPA 3.86 • Relevant Coursework: Programming Fundamentals, Data Structures, Object-Oriented Design."
+                }
+            ],
+            projects: [
+                {
+                    id: 1,
+                    name: "E-Commerce Web App",
+                    tech: "React, Node.js, MongoDB",
+                    description: "Developed a full-stack e-commerce platform with user authentication, product catalog, and payment gateway integration."
+                }
+            ],
+            skills: [
+                "JavaScript", "PHP", "Python", "HTML/CSS", "SQL", "CodeIgniter", "Flutter", "Laravel", "Bootstrap", "MySQL", "Figma", "Git"
+            ],
+            languages: [
+                { language: "Malay", level: "Native" },
+                { language: "English", level: "Professional" },
+                { language: "Korean", level: "Basic" },
+                { language: "Japanese", level: "Basic" }
+            ]
+        };
+
+        // --- State ---
+        let cvData = initialCV;
+        let activeSection = 'personal';
+        let isEditorOpen = true;
+
+        // --- Init ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load from LocalStorage
+            const savedData = localStorage.getItem('cv_builder_vanilla_v1');
+            if (savedData) {
+                try {
+                    cvData = JSON.parse(savedData);
+                } catch(e) { console.error("Parse error", e); }
+            }
+
+            renderEditor();
+            renderPreview();
+            lucide.createIcons();
+            
+            // Auto-save interval
+            setInterval(() => {
+                localStorage.setItem('cv_builder_vanilla_v1', JSON.stringify(cvData));
+                const now = new Date();
+                document.getElementById('last-saved-time').innerText = `Last saved: ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+                document.getElementById('save-status').innerText = "Saved";
+                document.getElementById('save-status').classList.remove('text-amber-600', 'bg-amber-50', 'border-amber-100');
+                document.getElementById('save-status').classList.add('text-green-600', 'bg-green-50', 'border-green-100');
+            }, 3000);
+        });
+
+        // --- Core Functions ---
+
+        function updateData() {
+            // Trigger visual "unsaved" state
+            document.getElementById('save-status').innerText = "Saving...";
+            document.getElementById('save-status').classList.remove('text-green-600', 'bg-green-50', 'border-green-100');
+            document.getElementById('save-status').classList.add('text-amber-600', 'bg-amber-50', 'border-amber-100');
+            
+            renderPreview();
+        }
+
+        function toggleEditor() {
+            isEditorOpen = !isEditorOpen;
+            const drawer = document.getElementById('editor-drawer');
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            
+            if (isEditorOpen) {
+                drawer.classList.remove('drawer-closed');
+                mobileBtn.classList.add('hidden');
+            } else {
+                drawer.classList.add('drawer-closed');
+                mobileBtn.classList.remove('hidden');
+            }
+        }
+
+        function showNotification(msg, type='success') {
+            const el = document.getElementById('notification');
+            el.innerText = msg;
+            el.classList.remove('bg-red-500', 'bg-slate-800');
+            el.classList.add(type === 'error' ? 'bg-red-500' : 'bg-slate-800');
+            el.style.opacity = '1';
+            
+            setTimeout(() => {
+                el.style.opacity = '0';
+            }, 3000);
+        }
+
+        function downloadCVasPDF() {
+            const cvElement = document.getElementById('cv-preview');
+            const opt = {
+                margin: 0,
+                filename: 'cv.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(cvElement).save();
+        }
+
+
+        function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf') {
+                showNotification("Only PDF files allowed", 'error');
+                input.value = '';
+                return;
+            }
+            showNotification("PDF Uploaded. Backend parsing required.", 'success');
+            input.value = '';
+        }
+
+        // --- Rendering Logic (Editor) ---
+
+        function toggleSection(sectionName) {
+            activeSection = activeSection === sectionName ? null : sectionName;
+            renderEditor();
+        }
+
+        function renderEditor() {
+            const container = document.getElementById('editor-content');
+            container.innerHTML = '';
+
+            // Personal
+            container.appendChild(createSectionHeader('user', 'Personal Details', 'personal'));
+            if (activeSection === 'personal') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-4 bg-slate-50/30';
+                wrapper.innerHTML = `
+                    ${createInput('Full Name', cvData.personal.fullName, 'cvData.personal.fullName = this.value; updateData()')}
+                    ${createInput('Job Title', cvData.personal.title, 'cvData.personal.title = this.value; updateData()')}
+                    ${createTextarea('Summary', cvData.personal.summary, 'cvData.personal.summary = this.value; updateData()')}
+                    <div class="grid grid-cols-2 gap-2">
+                        ${createInput('Email', cvData.personal.email, 'cvData.personal.email = this.value; updateData()')}
+                        ${createInput('Phone', cvData.personal.phone, 'cvData.personal.phone = this.value; updateData()')}
+                    </div>
+                    ${createInput('Location', cvData.personal.location, 'cvData.personal.location = this.value; updateData()')}
+                    ${createInput('LinkedIn', cvData.personal.linkedin, 'cvData.personal.linkedin = this.value; updateData()')}
+                `;
+                container.appendChild(wrapper);
+            }
+
+            // Experience
+            container.appendChild(createSectionHeader('briefcase', 'Work Experience', 'experience'));
+            if (activeSection === 'experience') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-4 bg-slate-50/30';
+                
+                cvData.experience.forEach((exp, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'mb-4 pb-4 border-b border-slate-200 last:border-0 relative';
+                    item.innerHTML = `
+                        <button onclick="removeItem('experience', ${exp.id})" class="absolute -top-1 -right-1 text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                        ${createInput('Role', exp.role, `cvData.experience[${idx}].role = this.value; updateData()`)}
+                        ${createInput('Company', exp.company, `cvData.experience[${idx}].company = this.value; updateData()`)}
+                        <div class="flex gap-2">
+                            ${createInput('Start', exp.startDate, `cvData.experience[${idx}].startDate = this.value; updateData()`)}
+                            ${createInput('End', exp.endDate, `cvData.experience[${idx}].endDate = this.value; updateData()`)}
+                        </div>
+                        ${createTextarea('Description', exp.description, `cvData.experience[${idx}].description = this.value; updateData()`)}
+                    `;
+                    wrapper.appendChild(item);
+                });
+                
+                const addBtn = document.createElement('button');
+                addBtn.className = "w-full py-1.5 text-xs font-medium text-purple-600 bg-purple-50 rounded-md border border-purple-100 hover:bg-purple-100 transition-colors";
+                addBtn.innerText = "+ Add Position";
+                addBtn.onclick = () => addItem('experience');
+                wrapper.appendChild(addBtn);
+
+                container.appendChild(wrapper);
+            }
+
+            // Education
+            container.appendChild(createSectionHeader('graduation-cap', 'Education', 'education'));
+            if (activeSection === 'education') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-4 bg-slate-50/30';
+                
+                cvData.education.forEach((edu, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'mb-4 pb-4 border-b border-slate-200 last:border-0 relative';
+                    item.innerHTML = `
+                        <button onclick="removeItem('education', ${edu.id})" class="absolute -top-1 -right-1 text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                        ${createInput('Degree', edu.degree, `cvData.education[${idx}].degree = this.value; updateData()`)}
+                        ${createInput('School', edu.school, `cvData.education[${idx}].school = this.value; updateData()`)}
+                        ${createInput('Year', edu.year, `cvData.education[${idx}].year = this.value; updateData()`)}
+                        ${createTextarea('Details', edu.details, `cvData.education[${idx}].details = this.value; updateData()`)}
+                    `;
+                    wrapper.appendChild(item);
+                });
+
+                const addBtn = document.createElement('button');
+                addBtn.className = "w-full py-1.5 text-xs font-medium text-purple-600 bg-purple-50 rounded-md border border-purple-100 hover:bg-purple-100 transition-colors";
+                addBtn.innerText = "+ Add Education";
+                addBtn.onclick = () => addItem('education');
+                wrapper.appendChild(addBtn);
+
+                container.appendChild(wrapper);
+            }
+
+            // Projects
+            container.appendChild(createSectionHeader('code', 'Projects', 'projects'));
+            if (activeSection === 'projects') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-4 bg-slate-50/30';
+                
+                cvData.projects.forEach((proj, idx) => {
+                    const item = document.createElement('div');
+                    item.className = 'mb-4 pb-4 border-b border-slate-200 last:border-0 relative';
+                    item.innerHTML = `
+                        <button onclick="removeItem('projects', ${proj.id})" class="absolute -top-1 -right-1 text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                        ${createInput('Project Name', proj.name, `cvData.projects[${idx}].name = this.value; updateData()`)}
+                        ${createInput('Tech Stack', proj.tech, `cvData.projects[${idx}].tech = this.value; updateData()`)}
+                        ${createTextarea('Description', proj.description, `cvData.projects[${idx}].description = this.value; updateData()`)}
+                    `;
+                    wrapper.appendChild(item);
+                });
+
+                const addBtn = document.createElement('button');
+                addBtn.className = "w-full py-1.5 text-xs font-medium text-purple-600 bg-purple-50 rounded-md border border-purple-100 hover:bg-purple-100 transition-colors";
+                addBtn.innerText = "+ Add Project";
+                addBtn.onclick = () => addItem('projects');
+                wrapper.appendChild(addBtn);
+
+                container.appendChild(wrapper);
+            }
+
+            // Skills
+            container.appendChild(createSectionHeader('award', 'Skills', 'skills'));
+            if (activeSection === 'skills') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-4 bg-slate-50/30';
+                
+                const list = document.createElement('div');
+                list.className = 'flex flex-wrap gap-2 mb-3';
+                cvData.skills.forEach((skill, idx) => {
+                    list.innerHTML += `
+                        <div class="flex items-center gap-1 bg-white border border-slate-200 rounded px-2 py-1">
+                            <input class="w-20 text-xs outline-none" value="${skill}" oninput="cvData.skills[${idx}] = this.value; updateData()">
+                            <button onclick="removeSkill(${idx})" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" class="w-2.5 h-2.5"></i></button>
+                        </div>
+                    `;
+                });
+                wrapper.appendChild(list);
+
+                const addBtn = document.createElement('button');
+                addBtn.className = "w-full py-1.5 text-xs font-medium text-purple-600 bg-purple-50 rounded-md border border-purple-100 hover:bg-purple-100 transition-colors";
+                addBtn.innerText = "+ Add Skill";
+                addBtn.onclick = () => { cvData.skills.push("New Skill"); renderEditor(); updateData(); };
+                wrapper.appendChild(addBtn);
+
+                container.appendChild(wrapper);
+            }
+
+            // Languages
+            container.appendChild(createSectionHeader('languages', 'Languages', 'languages'));
+            if (activeSection === 'languages') {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'p-4 bg-slate-50/30';
+                
+                cvData.languages.forEach((lang, idx) => {
+                    wrapper.innerHTML += `
+                        <div class="flex gap-2 mb-2">
+                            <input class="flex-1 p-2 bg-white border border-slate-200 rounded text-xs outline-none" value="${lang.language}" placeholder="Language" oninput="cvData.languages[${idx}].language = this.value; updateData()">
+                            <input class="w-24 p-2 bg-white border border-slate-200 rounded text-xs outline-none" value="${lang.level}" placeholder="Level" oninput="cvData.languages[${idx}].level = this.value; updateData()">
+                        </div>
+                    `;
+                });
+
+                const addBtn = document.createElement('button');
+                addBtn.className = "w-full py-1.5 text-xs font-medium text-purple-600 bg-purple-50 rounded-md border border-purple-100 hover:bg-purple-100 transition-colors";
+                addBtn.innerText = "+ Add Language";
+                addBtn.onclick = () => { cvData.languages.push({language: "", level: ""}); renderEditor(); updateData(); };
+                wrapper.appendChild(addBtn);
+
+                container.appendChild(wrapper);
+            }
+
+            // Refresh icons for new elements
+            lucide.createIcons();
+        }
+
+        // --- Helper Builders ---
+        function createSectionHeader(icon, title, sectionName) {
+            const btn = document.createElement('button');
+            btn.className = "w-full flex items-center justify-between p-3 bg-white border-b border-slate-100 hover:bg-slate-50 transition-colors";
+            btn.onclick = () => toggleSection(sectionName);
+            btn.innerHTML = `
+                <div class="flex items-center gap-2.5">
+                    <div class="p-1.5 bg-purple-50 text-purple-600 rounded-md">
+                        <i data-lucide="${icon}" class="w-4 h-4"></i>
+                    </div>
+                    <span class="font-semibold text-slate-700 text-sm">${title}</span>
+                </div>
+                <i data-lucide="${activeSection === sectionName ? 'chevron-up' : 'chevron-down'}" class="w-3.5 h-3.5 text-slate-400"></i>
+            `;
+            return btn;
+        }
+
+        function createInput(label, value, oninput) {
+            return `
+                <div class="mb-3">
+                    <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">${label}</label>
+                    <input type="text" class="w-full p-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-purple-500 outline-none text-xs text-slate-700" value="${value || ''}" oninput="${oninput}">
+                </div>
+            `;
+        }
+
+        function createTextarea(label, value, oninput) {
+            return `
+                <div class="mb-3">
+                    <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">${label}</label>
+                    <textarea class="w-full p-2 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-purple-500 outline-none text-xs text-slate-700 min-h-[80px]" oninput="${oninput}">${value || ''}</textarea>
+                </div>
+            `;
+        }
+
+        // --- Data Manupulation ---
+        function addItem(type) {
+            const id = Date.now();
+            if (type === 'experience') {
+                cvData.experience.unshift({ id, role: "New Role", company: "", startDate: "", endDate: "", description: "" });
+            } else if (type === 'education') {
+                cvData.education.unshift({ id, degree: "Degree", school: "", year: "", details: "" });
+            } else if (type === 'projects') {
+                cvData.projects.unshift({ id, name: "Project", tech: "", description: "" });
+            }
+            renderEditor();
+            updateData();
+        }
+
+        function removeItem(type, id) {
+            cvData[type] = cvData[type].filter(i => i.id !== id);
+            renderEditor();
+            updateData();
+        }
+
+        function removeSkill(index) {
+            cvData.skills.splice(index, 1);
+            renderEditor();
+            updateData();
+        }
+
+        // --- Preview Rendering ---
+        function renderPreview() {
+            const p = cvData.personal;
+            const html = `
+                <!-- Header -->
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-slate-900 mb-1">${p.fullName}</h1>
+                    <p class="text-lg text-slate-500 font-medium mb-4">${p.title}</p>
+                    <div class="text-xs text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
+                        ${p.email ? `<span>${p.email}</span>` : ''}
+                        ${p.phone ? `<span>${p.phone}</span>` : ''}
+                        ${p.location ? `<span>${p.location}</span>` : ''}
+                        ${p.linkedin ? `<span class="text-purple-600">${p.linkedin}</span>` : ''}
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                ${p.summary ? `
+                    <div class="mb-6">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Summary</h3>
+                        <p class="text-sm leading-relaxed text-slate-700 text-justify">${p.summary}</p>
+                    </div>
+                ` : ''}
+
+                <!-- Experience -->
+                ${cvData.experience.length > 0 ? `
+                    <div class="mb-6">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-100 pb-1">Work Experience</h3>
+                        <div class="space-y-5">
+                            ${cvData.experience.map(exp => `
+                                <div>
+                                    <div class="flex justify-between items-baseline mb-0.5">
+                                        <h4 class="text-sm font-bold text-slate-800">${exp.role}</h4>
+                                        <span class="text-xs text-slate-500 font-medium">${exp.startDate} - ${exp.endDate}</span>
+                                    </div>
+                                    <div class="text-xs text-purple-600 font-medium mb-2">${exp.company} <span class="text-slate-400 font-normal">• ${exp.location}</span></div>
+                                    <p class="text-sm text-slate-600 whitespace-pre-line leading-relaxed">${exp.description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Education -->
+                ${cvData.education.length > 0 ? `
+                    <div class="mb-6">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-100 pb-1">Education</h3>
+                        <div class="space-y-4">
+                            ${cvData.education.map(edu => `
+                                <div>
+                                    <div class="flex justify-between items-baseline mb-0.5">
+                                        <h4 class="text-sm font-bold text-slate-800">${edu.school}</h4>
+                                        <span class="text-xs text-slate-500 font-medium">${edu.year}</span>
+                                    </div>
+                                    <div class="text-xs text-slate-600 mb-1">${edu.degree}</div>
+                                    ${edu.details ? `<p class="text-xs text-slate-500 italic">${edu.details}</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Projects -->
+                ${cvData.projects.length > 0 ? `
+                    <div class="mb-6">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 border-b border-slate-100 pb-1">Projects</h3>
+                        <div class="space-y-3">
+                            ${cvData.projects.map(proj => `
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <h4 class="text-sm font-bold text-slate-800">${proj.name}</h4>
+                                        <span class="text-[10px] px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded">${proj.tech}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-relaxed">${proj.description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Grid -->
+                <div class="grid grid-cols-1 gap-6">
+                    ${cvData.skills.length > 0 ? `
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Skills</h3>
+                            <div class="flex flex-wrap gap-x-1.5 gap-y-1.5 text-xs text-slate-700">
+                                ${cvData.skills.map(s => `<span class="after:content-['•'] after:ml-1.5 last:after:content-none">${s}</span>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${cvData.languages.length > 0 ? `
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1">Languages</h3>
+                            <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-700">
+                                ${cvData.languages.map(l => `<div><span class="font-semibold">${l.language}:</span> ${l.level}</div>`).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            document.getElementById('cv-preview').innerHTML = html;
+        }
+
+    </script>
+</body>
+</html>

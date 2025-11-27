@@ -1,0 +1,10 @@
+career_path,avg_salary_usd,median_salary_usd,job_growth_percent,market_saturation,job_postings_2024
+Full-Stack Developer,120000,110000,10,0.31,250000
+Frontend Engineer,115000,105000,8,0.15,120000
+Backend Engineer,125000,115000,12,0.17,180000
+Data Engineer,135000,125000,18,0.08,95000
+DevOps Engineer,140000,130000,22,0.05,85000
+Mobile Developer,118000,110000,15,0.12,110000
+AI/ML Engineer,145000,135000,35,0.06,140000
+Cybersecurity Engineer,135000,125000,25,0.04,75000
+Cloud Architect,160000,150000,20,0.02,60000

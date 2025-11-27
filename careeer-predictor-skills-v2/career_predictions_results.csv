@@ -1,0 +1,10 @@
+rank,career_path,compatibility_percent,avg_salary_usd,job_growth_percent,job_postings_2024,matched_skills_count,top_skill_to_learn_1,top_skill_to_learn_2,top_skill_to_learn_3,top_skill_to_learn_4,top_skill_to_learn_5
+1,Frontend Engineer,39.5,115000,8,120000,7,React,Vue,Angular,TypeScript,Testing
+2,Full-Stack Developer,39.1,120000,10,250000,8,Express.js,PostgreSQL,MongoDB,React,Django
+3,Backend Engineer,28.4,125000,12,180000,6,Django,PostgreSQL,Java,MySQL,Express.js
+4,Mobile Developer,27.8,118000,15,110000,5,React Native,Swift,Flutter,Kotlin,State Management
+5,Data Engineer,25.4,135000,18,95000,5,ETL,PostgreSQL,Spark,Pandas,NumPy
+6,AI/ML Engineer,25.2,145000,35,140000,5,Machine Learning,NumPy,Jupyter,Pandas,Statistics
+7,Cybersecurity Engineer,21.4,135000,25,75000,4,Linux,Networking,Web Security,Security Tools,Cryptography
+8,DevOps Engineer,16.4,140000,22,85000,2,Linux,Docker,Kubernetes,AWS,CI/CD
+9,Cloud Architect,16.3,160000,20,60000,2,AWS,Azure,Terraform,System Design,Google Cloud

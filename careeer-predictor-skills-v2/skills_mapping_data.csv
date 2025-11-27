@@ -1,0 +1,170 @@
+career_path,skill,importance_score
+Full-Stack Developer,HTML,0.95
+Full-Stack Developer,CSS,0.95
+Full-Stack Developer,JavaScript,0.95
+Full-Stack Developer,React,0.7
+Full-Stack Developer,Vue,0.6
+Full-Stack Developer,Angular,0.5
+Full-Stack Developer,Express.js,0.75
+Full-Stack Developer,Django,0.65
+Full-Stack Developer,Flask,0.6
+Full-Stack Developer,SQL,0.9
+Full-Stack Developer,MongoDB,0.7
+Full-Stack Developer,PostgreSQL,0.75
+Full-Stack Developer,Git,0.95
+Full-Stack Developer,GitHub,0.9
+Full-Stack Developer,Docker,0.6
+Full-Stack Developer,Kubernetes,0.3
+Full-Stack Developer,AWS,0.5
+Full-Stack Developer,Azure,0.4
+Full-Stack Developer,Google Cloud,0.4
+Full-Stack Developer,APIs,0.8
+Full-Stack Developer,REST,0.8
+Full-Stack Developer,GraphQL,0.4
+Full-Stack Developer,Testing,0.6
+Full-Stack Developer,CI/CD,0.5
+Frontend Engineer,HTML,0.99
+Frontend Engineer,CSS,0.99
+Frontend Engineer,JavaScript,0.99
+Frontend Engineer,React,0.95
+Frontend Engineer,Vue,0.9
+Frontend Engineer,Angular,0.85
+Frontend Engineer,Bootstrap,0.85
+Frontend Engineer,Tailwind CSS,0.8
+Frontend Engineer,Next.js,0.7
+Frontend Engineer,TypeScript,0.75
+Frontend Engineer,Testing,0.75
+Frontend Engineer,Git,0.95
+Frontend Engineer,GitHub,0.9
+Frontend Engineer,Web Performance,0.7
+Frontend Engineer,Accessibility,0.6
+Frontend Engineer,Figma,0.5
+Frontend Engineer,API Integration,0.7
+Backend Engineer,Python,0.85
+Backend Engineer,Java,0.8
+Backend Engineer,Node.js,0.75
+Backend Engineer,Express.js,0.8
+Backend Engineer,Django,0.85
+Backend Engineer,Spring Boot,0.75
+Backend Engineer,SQL,0.95
+Backend Engineer,PostgreSQL,0.85
+Backend Engineer,MySQL,0.8
+Backend Engineer,APIs,0.95
+Backend Engineer,REST,0.95
+Backend Engineer,GraphQL,0.7
+Backend Engineer,Git,0.95
+Backend Engineer,GitHub,0.9
+Backend Engineer,Docker,0.7
+Backend Engineer,Microservices,0.75
+Backend Engineer,System Design,0.8
+Backend Engineer,AWS,0.6
+Backend Engineer,Testing,0.7
+Backend Engineer,CI/CD,0.6
+Backend Engineer,Redis,0.5
+Data Engineer,Python,0.95
+Data Engineer,R,0.85
+Data Engineer,SQL,0.99
+Data Engineer,PostgreSQL,0.9
+Data Engineer,MongoDB,0.8
+Data Engineer,Spark,0.9
+Data Engineer,Kafka,0.75
+Data Engineer,ETL,0.95
+Data Engineer,Data Warehousing,0.85
+Data Engineer,BigQuery,0.8
+Data Engineer,Snowflake,0.8
+Data Engineer,Redshift,0.75
+Data Engineer,AWS,0.85
+Data Engineer,Azure,0.75
+Data Engineer,Google Cloud,0.8
+Data Engineer,Airflow,0.85
+Data Engineer,Git,0.85
+Data Engineer,Pandas,0.9
+Data Engineer,NumPy,0.85
+Data Engineer,Data Analysis,0.95
+Data Engineer,Statistics,0.85
+DevOps Engineer,Linux,0.95
+DevOps Engineer,Docker,0.95
+DevOps Engineer,Kubernetes,0.95
+DevOps Engineer,Terraform,0.9
+DevOps Engineer,AWS,0.95
+DevOps Engineer,Azure,0.85
+DevOps Engineer,Google Cloud,0.8
+DevOps Engineer,CI/CD,0.95
+DevOps Engineer,Jenkins,0.85
+DevOps Engineer,GitHub Actions,0.8
+DevOps Engineer,Git,0.95
+DevOps Engineer,Bash,0.95
+DevOps Engineer,Python,0.8
+DevOps Engineer,Ansible,0.75
+DevOps Engineer,CloudFormation,0.7
+DevOps Engineer,Monitoring,0.8
+DevOps Engineer,Prometheus,0.7
+DevOps Engineer,ELK Stack,0.7
+Mobile Developer,JavaScript,0.8
+Mobile Developer,React Native,0.85
+Mobile Developer,Flutter,0.8
+Mobile Developer,Kotlin,0.8
+Mobile Developer,Swift,0.85
+Mobile Developer,APIs,0.9
+Mobile Developer,REST,0.9
+Mobile Developer,Git,0.9
+Mobile Developer,GitHub,0.85
+Mobile Developer,UI/UX,0.75
+Mobile Developer,Testing,0.7
+Mobile Developer,Firebase,0.7
+Mobile Developer,App Store,0.7
+Mobile Developer,Google Play,0.7
+Mobile Developer,State Management,0.8
+AI/ML Engineer,Python,0.99
+AI/ML Engineer,R,0.8
+AI/ML Engineer,TensorFlow,0.9
+AI/ML Engineer,PyTorch,0.85
+AI/ML Engineer,Scikit-learn,0.9
+AI/ML Engineer,Pandas,0.95
+AI/ML Engineer,NumPy,0.95
+AI/ML Engineer,Jupyter,0.95
+AI/ML Engineer,Data Analysis,0.95
+AI/ML Engineer,Machine Learning,0.99
+AI/ML Engineer,Deep Learning,0.85
+AI/ML Engineer,SQL,0.85
+AI/ML Engineer,Statistics,0.95
+AI/ML Engineer,Mathematics,0.9
+AI/ML Engineer,Kaggle,0.7
+AI/ML Engineer,Git,0.8
+AI/ML Engineer,AWS,0.6
+AI/ML Engineer,Google Cloud,0.6
+AI/ML Engineer,Neural Networks,0.9
+Cybersecurity Engineer,Python,0.85
+Cybersecurity Engineer,C++,0.75
+Cybersecurity Engineer,Java,0.7
+Cybersecurity Engineer,Linux,0.95
+Cybersecurity Engineer,Networking,0.95
+Cybersecurity Engineer,SQL,0.8
+Cybersecurity Engineer,Cryptography,0.85
+Cybersecurity Engineer,Web Security,0.9
+Cybersecurity Engineer,OWASP,0.85
+Cybersecurity Engineer,Git,0.8
+Cybersecurity Engineer,APIs,0.75
+Cybersecurity Engineer,Penetration Testing,0.85
+Cybersecurity Engineer,Security Tools,0.9
+Cybersecurity Engineer,Incident Response,0.8
+Cybersecurity Engineer,Firewall,0.75
+Cybersecurity Engineer,SIEM,0.7
+Cybersecurity Engineer,Compliance,0.75
+Cloud Architect,AWS,0.99
+Cloud Architect,Azure,0.95
+Cloud Architect,Google Cloud,0.9
+Cloud Architect,Terraform,0.95
+Cloud Architect,CloudFormation,0.9
+Cloud Architect,Kubernetes,0.85
+Cloud Architect,Docker,0.8
+Cloud Architect,System Design,0.95
+Cloud Architect,Networking,0.9
+Cloud Architect,SQL,0.85
+Cloud Architect,Security,0.9
+Cloud Architect,Cost Optimization,0.85
+Cloud Architect,Disaster Recovery,0.85
+Cloud Architect,CI/CD,0.75
+Cloud Architect,Ansible,0.7
+Cloud Architect,Git,0.75
+Cloud Architect,Compliance,0.8

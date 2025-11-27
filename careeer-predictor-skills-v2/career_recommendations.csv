@@ -1,0 +1,4 @@
+rank,career_path,missing_skill_1,missing_skill_2,missing_skill_3,missing_skill_4,missing_skill_5
+1,Frontend Engineer,React,Vue,Angular,Testing,TypeScript
+2,Full-Stack Developer,Express.js,PostgreSQL,MongoDB,React,Django
+3,Backend Engineer,PostgreSQL,Django,Java,System Design,Express.js

@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Engineering Career Path Predictor</title>
+    <style>
+        :root {
+  /* Primitive Color Tokens */
+  --color-white: rgba(255, 255, 255, 1);
+  --color-black: rgba(0, 0, 0, 1);
+  --color-cream-50: rgba(252, 252, 249, 1);
+  --color-cream-100: rgba(255, 255, 253, 1);
+  --color-gray-200: rgba(245, 245, 245, 1);
+  --color-gray-300: rgba(167, 169, 169, 1);
+  --color-gray-400: rgba(119, 124, 124, 1);
+  --color-slate-500: rgba(98, 108, 113, 1);
+  --color-brown-600: rgba(94, 82, 64, 1);
+  --color-charcoal-700: rgba(31, 33, 33, 1);
+  --color-charcoal-800: rgba(38, 40, 40, 1);
+  --color-slate-900: rgba(19, 52, 59, 1);
+  --color-teal-300: rgba(50, 184, 198, 1);
+  --color-teal-400: rgba(45, 166, 178, 1);
+  --color-teal-500: rgba(33, 128, 141, 1);
+  --color-teal-600: rgba(29, 116, 128, 1);
+  --color-teal-700: rgba(26, 104, 115, 1);
+  --color-teal-800: rgba(41, 150, 161, 1);
+  --color-red-400: rgba(255, 84, 89, 1);
+  --color-red-500: rgba(192, 21, 47, 1);
+  --color-orange-400: rgba(230, 129, 97, 1);
+  --color-orange-500: rgba(168, 75, 47, 1);
+
+  /* RGB versions for opacity control */
+  --color-brown-600-rgb: 94, 82, 64;
+  --color-teal-500-rgb: 33, 128, 141;
+  --color-slate-900-rgb: 19, 52, 59;
+  --color-slate-500-rgb: 98, 108, 113;
+  --color-red-500-rgb: 192, 21, 47;
+  --color-red-400-rgb: 255, 84, 89;
+  --color-orange-500-rgb: 168, 75, 47;
+  --color-orange-400-rgb: 230, 129, 97;
+
+  /* Background color tokens (Light Mode) */
+  --color-bg-1: rgba(59, 130, 246, 0.08);
+  --color-bg-2: rgba(245, 158, 11, 0.08);
+  --color-bg-3: rgba(34, 197, 94, 0.08);
+  --color-bg-4: rgba(239, 68, 68, 0.08);
+  --color-bg-5: rgba(147, 51, 234, 0.08);
+  --color-bg-6: rgba(249, 115, 22, 0.08);
+  --color-bg-7: rgba(236, 72, 153, 0.08);
+  --color-bg-8: rgba(6, 182, 212, 0.08);
+
+  /* Semantic Color Tokens (Light Mode) */
+  --color-background: var(--color-cream-50);
+  --color-surface: var(--color-cream-100);
+  --color-text: var(--color-slate-900);
+  --color-text-secondary: var(--color-slate-500);
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-600);
+  --color-primary-active: var(--color-teal-700);
+  --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+  --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-btn-primary-text: var(--color-cream-50);
+  --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-error: var(--color-red-500);
+  --color-success: var(--color-teal-500);
+  --color-warning: var(--color-orange-500);
+  --color-info: var(--color-slate-500);
+  --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+  --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+
+  /* Common style patterns */
+  --focus-ring: 0 0 0 3px var(--color-focus-ring);
+  --focus-outline: 2px solid var(--color-primary);
+  --status-bg-opacity: 0.15;
+  --status-border-opacity: 0.25;
+
+  /* Typography */
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 30px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 600;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+
+  /* Spacing */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+
+  /* Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-gray-400-rgb: 119, 124, 124;
+    --color-teal-300-rgb: 50, 184, 198;
+    --color-gray-300-rgb: 167, 169, 169;
+    --color-gray-200-rgb: 245, 245, 245;
+
+    --color-bg-1: rgba(29, 78, 216, 0.15);
+    --color-bg-2: rgba(180, 83, 9, 0.15);
+    --color-bg-3: rgba(21, 128, 61, 0.15);
+    --color-bg-4: rgba(185, 28, 28, 0.15);
+    --color-bg-5: rgba(107, 33, 168, 0.15);
+    --color-bg-6: rgba(194, 65, 12, 0.15);
+    --color-bg-7: rgba(190, 24, 93, 0.15);
+    --color-bg-8: rgba(8, 145, 178, 0.15);
+
+    --color-background: var(--color-charcoal-700);
+    --color-surface: var(--color-charcoal-800);
+    --color-text: var(--color-gray-200);
+    --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+    --color-primary: var(--color-teal-300);
+    --color-primary-hover: var(--color-teal-400);
+    --color-primary-active: var(--color-teal-800);
+    --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
+    --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
+    --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-error: var(--color-red-400);
+    --color-success: var(--color-teal-300);
+    --color-warning: var(--color-orange-400);
+    --color-info: var(--color-gray-300);
+    --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
+    --color-btn-primary-text: var(--color-slate-900);
+    --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+    --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
+    --color-select-caret: rgba(var(--color-gray-200-rgb), 0.8);
+
+    --color-success-rgb: var(--color-teal-300-rgb);
+    --color-error-rgb: var(--color-red-400-rgb);
+    --color-warning-rgb: var(--color-orange-400-rgb);
+    --color-info-rgb: var(--color-gray-300-rgb);
+  }
+}
+
+@font-face {
+  font-family: 'FKGroteskNeue';
+  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: var(--line-height-normal);
+  font-size: var(--font-size-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-32) var(--space-16);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: var(--space-48);
+}
+
+.header h1 {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  margin-bottom: var(--space-12);
+}
+
+.header p {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.skills-section {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-card-border);
+  padding: var(--space-32);
+  margin-bottom: var(--space-32);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-24);
+  color: var(--color-text);
+}
+
+.skill-category {
+  margin-bottom: var(--space-32);
+}
+
+.category-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  margin-bottom: var(--space-12);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.category-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+}
+
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-12);
+}
+
+.skill-item {
+  position: relative;
+}
+
+.skill-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.skill-label {
+  display: block;
+  padding: var(--space-12) var(--space-16);
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-standard);
+  text-align: center;
+  user-select: none;
+}
+
+.skill-label:hover {
+  background: var(--color-secondary-hover);
+  border-color: var(--color-primary);
+}
+
+.skill-checkbox:checked + .skill-label {
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  border-color: var(--color-primary);
+}
+
+.skill-checkbox:focus + .skill-label {
+  box-shadow: var(--focus-ring);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--space-16);
+  justify-content: center;
+  margin-top: var(--space-32);
+}
+
+.btn {
+  padding: var(--space-12) var(--space-32);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-standard);
+  font-family: var(--font-family-base);
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn-secondary {
+  background: var(--color-secondary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-secondary-hover);
+}
+
+.results-section {
+  margin-top: var(--space-48);
+}
+
+.results-header {
+  text-align: center;
+  margin-bottom: var(--space-32);
+}
+
+.results-header h2 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-12);
+}
+
+.selected-skills-summary {
+  background: var(--color-bg-1);
+  padding: var(--space-16);
+  border-radius: var(--radius-base);
+  margin-bottom: var(--space-32);
+  text-align: center;
+}
+
+.selected-skills-summary p {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.career-cards {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.career-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--duration-normal) var(--ease-standard);
+}
+
+.career-card.top-match {
+  border: 2px solid var(--color-primary);
+  background: var(--color-bg-1);
+}
+
+.career-card:hover {
+  transform: translateY(-2px);
+}
+
+.career-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-16);
+}
+
+.career-title-section {
+  flex: 1;
+}
+
+.career-rank {
+  display: inline-block;
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-8);
+}
+
+.career-name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.career-description {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.score-display {
+  text-align: right;
+}
+
+.score-percentage {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+.score-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--color-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-20);
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.6s var(--ease-standard);
+}
+
+.career-details {
+  display: grid;
+  gap: var(--space-20);
+}
+
+.detail-section h4 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-8);
+  color: var(--color-text);
+}
+
+.skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.skill-tag {
+  padding: var(--space-4) var(--space-12);
+  background: var(--color-success);
+  color: var(--color-btn-primary-text);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.missing-skills-list {
+  list-style: none;
+  display: grid;
+  gap: var(--space-8);
+}
+
+.missing-skills-list li {
+  padding: var(--space-8) var(--space-12);
+  background: var(--color-bg-2);
+  border-left: 3px solid var(--color-warning);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+}
+
+.next-steps-list {
+  list-style: none;
+  display: grid;
+  gap: var(--space-8);
+}
+
+.next-steps-list li {
+  padding-left: var(--space-20);
+  position: relative;
+  font-size: var(--font-size-sm);
+}
+
+.next-steps-list li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.learning-pathway {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  margin-top: var(--space-32);
+}
+
+.pathway-steps {
+  display: grid;
+  gap: var(--space-16);
+  margin-top: var(--space-16);
+}
+
+.pathway-step {
+  display: flex;
+  gap: var(--space-16);
+  align-items: flex-start;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+.step-content h5 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-4);
+}
+
+.step-content p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.export-section {
+  text-align: center;
+  margin-top: var(--space-48);
+  padding: var(--space-32);
+  background: var(--color-bg-3);
+  border-radius: var(--radius-lg);
+}
+
+.hidden {
+  display: none;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-48) var(--space-32);
+  color: var(--color-text-secondary);
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-16);
+}
+
+.proficiency-slider {
+  margin-top: var(--space-8);
+  padding: var(--space-8);
+  background: var(--color-bg-1);
+  border-radius: var(--radius-sm);
+}
+
+.proficiency-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-4);
+  font-weight: var(--font-weight-medium);
+}
+
+.proficiency-value {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.slider {
+  width: 100%;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-secondary);
+  outline: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  cursor: pointer;
+  border: none;
+}
+
+.career-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-12);
+  margin-bottom: var(--space-20);
+  padding: var(--space-16);
+  background: var(--color-bg-1);
+  border-radius: var(--radius-base);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+.stat-value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.chart-container {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-24);
+  margin-bottom: var(--space-32);
+  box-shadow: var(--shadow-sm);
+}
+
+.chart-container canvas {
+  max-height: 400px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-16);
+}
+
+.modal-content {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-24);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modal-header h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: var(--space-4);
+  line-height: 1;
+  transition: color var(--duration-fast);
+}
+
+.modal-close:hover {
+  color: var(--color-text);
+}
+
+.modal-body {
+  padding: var(--space-24);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
+}
+
+.detail-card {
+  background: var(--color-bg-1);
+  padding: var(--space-16);
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border);
+}
+
+.detail-card h4 {
+  margin-bottom: var(--space-12);
+}
+
+.detail-card p {
+  margin-bottom: var(--space-8);
+  font-size: var(--font-size-sm);
+}
+
+.skill-gap-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.gap-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.gap-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.gap-bar-container {
+  position: relative;
+  height: 24px;
+  background: var(--color-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.gap-bar {
+  height: 100%;
+  background: var(--color-warning);
+  border-radius: var(--radius-full);
+  transition: width 0.6s var(--ease-standard);
+}
+
+.gap-value {
+  position: absolute;
+  right: var(--space-8);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+}
+
+.resource-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-12);
+}
+
+.resource-link {
+  display: block;
+  padding: var(--space-12);
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  text-decoration: none;
+  border-radius: var(--radius-base);
+  text-align: center;
+  font-weight: var(--font-weight-medium);
+  transition: background var(--duration-normal);
+}
+
+.resource-link:hover {
+  background: var(--color-primary-hover);
+  color: var(--color-btn-primary-text);
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: var(--space-16);
+  }
+  
+  .skill-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--space-8);
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+  }
+  
+  .career-header {
+    flex-direction: column;
+  }
+  
+  .score-display {
+    text-align: left;
+    margin-top: var(--space-8);
+  }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚀 Software Engineering Career Path Predictor</h1>
+            <p>Discover your ideal career path based on your skills and get personalized recommendations for growth</p>
+        </header>
+
+        <section class="skills-section">
+            <h2 class="section-title">Select Your Skills &amp; Knowledge</h2>
+            
+            <div class="skill-category">
+                <h3 class="category-title">
+                    <span class="category-icon">💻</span>
+                    Programming Languages
+                </h3>
+                <div class="skill-grid" id="programmingLanguages"></div>
+            </div>
+
+            <div class="skill-category">
+                <h3 class="category-title">
+                    <span class="category-icon">🎨</span>
+                    Frontend Frameworks
+                </h3>
+                <div class="skill-grid" id="frontendFrameworks"></div>
+            </div>
+
+            <div class="skill-category">
+                <h3 class="category-title">
+                    <span class="category-icon">⚙️</span>
+                    Backend Frameworks
+                </h3>
+                <div class="skill-grid" id="backendFrameworks"></div>
+            </div>
+
+            <div class="skill-category">
+                <h3 class="category-title">
+                    <span class="category-icon">🗄️</span>
+                    Databases
+                </h3>
+                <div class="skill-grid" id="databases"></div>
+            </div>
+
+            <div class="skill-category">
+                <h3 class="category-title">
+                    <span class="category-icon">☁️</span>
+                    Cloud Platforms
+                </h3>
+                <div class="skill-grid" id="cloudPlatforms"></div>
+            </div>
+
+            <div class="skill-category">
+                <h3 class="category-title">
+                    <span class="category-icon">🔧</span>
+                    DevOps &amp; Tools
+                </h3>
+                <div class="skill-grid" id="devopsTools"></div>
+            </div>
+
+            <div class="skill-category">
+                <h3 class="category-title">
+                    <span class="category-icon">🎯</span>
+                    Specializations
+                </h3>
+                <div class="skill-grid" id="specializations"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="calculateCareerPaths()">🔍 Predict My Career Path</button>
+                <button class="btn btn-secondary" onclick="loadExampleProfile()">📋 Load Example Profile</button>
+                <button class="btn btn-secondary" onclick="resetSelections()">🔄 Reset All</button>
+            </div>
+        </section>
+
+        <section class="results-section hidden" id="resultsSection">
+            <div class="results-header">
+                <h2>Your Career Path Analysis</h2>
+                <div class="selected-skills-summary" id="skillsSummary"></div>
+            </div>
+            <div class="career-cards" id="careerCards"></div>
+            <div class="learning-pathway hidden" id="learningPathway"></div>
+            <div class="export-section">
+                <h3 class="section-title">Save Your Results</h3>
+                <p style="margin-bottom: var(--space-16); color: var(--color-text-secondary);">Download a comprehensive summary of your career analysis</p>
+                <button class="btn btn-primary" onclick="exportResults()">📥 Export Results (CSV)</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Embedded CSV data
+        const careerPathsData = [
+            {name: "Full-Stack Developer", avg_salary: 120000, median_salary: 110000, job_growth: 10, market_saturation: 0.31, job_postings: 250000, description: "Build complete web applications from frontend to backend"},
+            {name: "Frontend Engineer", avg_salary: 115000, median_salary: 105000, job_growth: 8, market_saturation: 0.15, job_postings: 120000, description: "Focus on user interfaces and frontend experiences"},
+            {name: "Backend Engineer", avg_salary: 125000, median_salary: 115000, job_growth: 12, market_saturation: 0.17, job_postings: 180000, description: "Build server-side applications and APIs"},
+            {name: "Data Engineer", avg_salary: 135000, median_salary: 125000, job_growth: 18, market_saturation: 0.08, job_postings: 95000, description: "Build data pipelines and infrastructure"},
+            {name: "DevOps Engineer", avg_salary: 140000, median_salary: 130000, job_growth: 22, market_saturation: 0.05, job_postings: 85000, description: "Manage infrastructure and deployment systems"},
+            {name: "Mobile Developer", avg_salary: 118000, median_salary: 110000, job_growth: 15, market_saturation: 0.12, job_postings: 110000, description: "Build applications for iOS and Android"},
+            {name: "AI/ML Engineer", avg_salary: 145000, median_salary: 135000, job_growth: 35, market_saturation: 0.06, job_postings: 140000, description: "Develop machine learning and AI systems"},
+            {name: "Cybersecurity Engineer", avg_salary: 135000, median_salary: 125000, job_growth: 25, market_saturation: 0.04, job_postings: 75000, description: "Secure applications and infrastructure"},
+            {name: "Cloud Architect", avg_salary: 160000, median_salary: 150000, job_growth: 20, market_saturation: 0.02, job_postings: 60000, description: "Design scalable cloud infrastructure"}
+        ];
+
+        const skillsMapping = {
+            "Full-Stack Developer": {"HTML": 0.95, "CSS": 0.95, "JavaScript": 0.95, "React": 0.7, "Vue": 0.6, "Angular": 0.5, "Express.js": 0.75, "Django": 0.65, "Flask": 0.6, "SQL": 0.9, "MongoDB": 0.7, "PostgreSQL": 0.75, "Git": 0.95, "GitHub": 0.9, "Docker": 0.6, "Kubernetes": 0.3, "AWS": 0.5, "Azure": 0.4, "Google Cloud": 0.4, "APIs": 0.8, "REST": 0.8, "GraphQL": 0.4, "CI/CD": 0.5},
+            "Frontend Engineer": {"HTML": 0.99, "CSS": 0.99, "JavaScript": 0.99, "React": 0.95, "Vue": 0.9, "Angular": 0.85, "Bootstrap": 0.85, "Tailwind CSS": 0.8, "Next.js": 0.7, "Git": 0.95, "GitHub": 0.9},
+            "Backend Engineer": {"Python": 0.85, "Java": 0.8, "Express.js": 0.8, "Django": 0.85, "Spring Boot": 0.75, "SQL": 0.95, "PostgreSQL": 0.85, "MySQL": 0.8, "APIs": 0.95, "REST": 0.95, "GraphQL": 0.7, "Git": 0.95, "GitHub": 0.9, "Docker": 0.7, "AWS": 0.6, "CI/CD": 0.6, "Redis": 0.5},
+            "Data Engineer": {"Python": 0.95, "R": 0.85, "SQL": 0.99, "PostgreSQL": 0.9, "MongoDB": 0.8, "AWS": 0.85, "Azure": 0.75, "Google Cloud": 0.8, "Git": 0.85, "Data Analysis": 0.95},
+            "DevOps Engineer": {"Docker": 0.95, "Kubernetes": 0.95, "Terraform": 0.9, "AWS": 0.95, "Azure": 0.85, "Google Cloud": 0.8, "CI/CD": 0.95, "Jenkins": 0.85, "Git": 0.95, "Python": 0.8},
+            "Mobile Developer": {"JavaScript": 0.8, "Kotlin": 0.8, "Swift": 0.85, "APIs": 0.9, "REST": 0.9, "Git": 0.9, "GitHub": 0.85, "Firebase": 0.7},
+            "AI/ML Engineer": {"Python": 0.99, "R": 0.8, "TensorFlow": 0.9, "PyTorch": 0.85, "Data Analysis": 0.95, "Machine Learning": 0.99, "SQL": 0.85, "Git": 0.8, "AWS": 0.6, "Google Cloud": 0.6},
+            "Cybersecurity Engineer": {"Python": 0.85, "C++": 0.75, "Java": 0.7, "SQL": 0.8, "Cybersecurity": 0.9, "Git": 0.8, "APIs": 0.75},
+            "Cloud Architect": {"AWS": 0.99, "Azure": 0.95, "Google Cloud": 0.9, "Terraform": 0.95, "Kubernetes": 0.85, "Docker": 0.8, "SQL": 0.85, "CI/CD": 0.75, "Git": 0.75}
+        };
+
+        const exampleProfile = {"HTML": 0.9, "CSS": 0.9, "JavaScript": 0.85, "Bootstrap": 0.85, "Tailwind CSS": 0.8, "Git": 0.85, "GitHub": 0.85, "R": 0.8, "Data Analysis": 0.7, "Python": 0.6, "SQL": 0.7, "APIs": 0.5, "REST": 0.5};
+
+        // User skills with proficiency (in-memory storage)
+        let userSkills = {};
+
+        // Data structure
+        const skillsData = {
+            programming_languages: ['HTML', 'CSS', 'JavaScript', 'Python', 'Java', 'C++', 'PHP', 'Ruby', 'Go', 'R', 'Kotlin', 'Swift'],
+            frontend_frameworks: ['React', 'Vue', 'Angular', 'Next.js', 'Bootstrap', 'Tailwind CSS'],
+            backend_frameworks: ['Express.js', 'Django', 'Flask', 'Spring Boot', 'Ruby on Rails', 'Laravel'],
+            databases: ['SQL', 'MySQL', 'PostgreSQL', 'MongoDB', 'Firebase', 'Redis', 'SQLite', 'NoSQL'],
+            cloud_platforms: ['AWS', 'Azure', 'Google Cloud', 'DigitalOcean'],
+            devops_tools: ['Docker', 'Kubernetes', 'GitHub', 'Git', 'Terraform', 'Jenkins', 'CI/CD'],
+            specializations: ['Machine Learning', 'TensorFlow', 'PyTorch', 'APIs', 'REST', 'GraphQL', 'Authentication', 'Cybersecurity', 'Data Analysis', 'Blockchain']
+        };
+
+        const categoryMapping = {
+            'Programming Languages': 'programming_languages',
+            'Frontend Frameworks': 'frontend_frameworks',
+            'Backend Frameworks': 'backend_frameworks',
+            'Databases': 'databases',
+            'Cloud Platforms': 'cloud_platforms',
+            'DevOps Tools': 'devops_tools',
+            'Specializations': 'specializations'
+        };
+
+        const careerPaths = [
+            {
+                name: 'Full-Stack Developer',
+                description: 'Build complete web applications from frontend to backend',
+                keySkills: ['HTML', 'CSS', 'JavaScript', 'Python', 'Java', 'React', 'Vue', 'Express.js', 'Django', 'SQL', 'NoSQL', 'MongoDB', 'Git', 'GitHub'],
+                missingSkillsExamples: ['Docker and containerization', 'CI/CD pipelines', 'Microservices architecture', 'Cloud deployment (AWS/Azure)', 'API security and authentication'],
+                nextSteps: ['Master RESTful API design patterns', 'Learn Docker for containerization', 'Study microservices architecture', 'Get cloud platform certification', 'Build portfolio projects showcasing full-stack skills']
+            },
+            {
+                name: 'Frontend Engineer',
+                description: 'Focus on user interfaces and frontend experiences',
+                keySkills: ['HTML', 'CSS', 'JavaScript', 'React', 'Vue', 'Angular', 'Bootstrap', 'Tailwind CSS', 'Next.js', 'Git', 'GitHub'],
+                missingSkillsExamples: ['TypeScript', 'Web performance optimization', 'Accessibility (a11y)', 'Testing frameworks (Jest, Cypress)', 'UI/UX design principles'],
+                nextSteps: ['Learn TypeScript for type safety', 'Master responsive design principles', 'Study web performance optimization', 'Practice accessibility standards (WCAG)', 'Build component libraries']
+            },
+            {
+                name: 'Backend Engineer',
+                description: 'Build server-side applications and APIs',
+                keySkills: ['Python', 'Java', 'PHP', 'Ruby', 'Django', 'Flask', 'Express.js', 'Spring Boot', 'SQL', 'MySQL', 'PostgreSQL', 'APIs', 'REST'],
+                missingSkillsExamples: ['Microservices architecture', 'Message queues (RabbitMQ, Kafka)', 'Caching strategies (Redis)', 'Database optimization', 'Cloud deployment'],
+                nextSteps: ['Master database optimization techniques', 'Learn microservices patterns', 'Study API security best practices', 'Implement caching strategies', 'Deploy to cloud platforms']
+            },
+            {
+                name: 'Data Engineer',
+                description: 'Build data pipelines and infrastructure',
+                keySkills: ['Python', 'R', 'SQL', 'NoSQL', 'MongoDB', 'PostgreSQL', 'Data Analysis', 'AWS', 'Azure', 'Google Cloud', 'Git'],
+                missingSkillsExamples: ['Apache Spark', 'Kafka for streaming', 'Data warehouse design', 'BigQuery or Snowflake', 'MLOps and data pipeline orchestration'],
+                nextSteps: ['Learn Apache Spark for big data', 'Master ETL pipeline design', 'Study data warehouse architectures', 'Get certified in cloud data services', 'Build real-time data processing projects']
+            },
+            {
+                name: 'DevOps Engineer',
+                description: 'Manage infrastructure and deployment systems',
+                keySkills: ['Docker', 'Kubernetes', 'Terraform', 'CI/CD', 'Jenkins', 'GitHub', 'AWS', 'Azure', 'Python', 'Git'],
+                missingSkillsExamples: ['Advanced Kubernetes concepts', 'Infrastructure as Code (Terraform/Ansible)', 'Monitoring and logging (Prometheus, ELK)', 'Cost optimization', 'Security compliance'],
+                nextSteps: ['Master Kubernetes orchestration', 'Learn Infrastructure as Code with Terraform', 'Implement CI/CD pipelines', 'Study monitoring and observability', 'Get cloud platform certification']
+            },
+            {
+                name: 'Mobile Developer',
+                description: 'Build applications for iOS and Android',
+                keySkills: ['JavaScript', 'Python', 'Java', 'Kotlin', 'Swift', 'APIs', 'REST', 'GraphQL'],
+                missingSkillsExamples: ['Native iOS development', 'Native Android development', 'Flutter framework', 'Mobile UI/UX design', 'App store deployment'],
+                nextSteps: ['Learn React Native or Flutter', 'Master mobile UI/UX patterns', 'Study native platform features', 'Implement push notifications', 'Deploy apps to app stores']
+            },
+            {
+                name: 'AI/ML Engineer',
+                description: 'Develop machine learning and AI systems',
+                keySkills: ['Python', 'R', 'Machine Learning', 'TensorFlow', 'PyTorch', 'Data Analysis', 'SQL', 'Git'],
+                missingSkillsExamples: ['Deep learning architecture', 'NLP (Natural Language Processing)', 'Computer vision', 'Model deployment and serving', 'MLOps and model monitoring'],
+                nextSteps: ['Master deep learning frameworks', 'Study neural network architectures', 'Learn model deployment techniques', 'Practice feature engineering', 'Build ML projects with real datasets']
+            },
+            {
+                name: 'Cybersecurity Engineer',
+                description: 'Secure applications and infrastructure',
+                keySkills: ['Python', 'C++', 'Java', 'Cybersecurity', 'SQL', 'APIs'],
+                missingSkillsExamples: ['Penetration testing', 'Network security', 'Encryption protocols', 'Security auditing tools', 'Incident response procedures'],
+                nextSteps: ['Get security certifications (CISSP, CEH)', 'Learn penetration testing tools', 'Study cryptography and encryption', 'Practice security auditing', 'Stay updated on security threats']
+            },
+            {
+                name: 'Cloud Architect',
+                description: 'Design scalable cloud infrastructure',
+                keySkills: ['AWS', 'Azure', 'Google Cloud', 'Terraform', 'Docker', 'Kubernetes', 'Python', 'SQL', 'Git'],
+                missingSkillsExamples: ['Multi-cloud strategies', 'Cost optimization', 'Security compliance', 'Disaster recovery planning', 'Advanced networking (VPC, VPN)'],
+                nextSteps: ['Get cloud architecture certification', 'Master multi-cloud strategies', 'Learn cost optimization techniques', 'Study disaster recovery planning', 'Design highly available systems']
+            }
+        ];
+
+        // Initialize skills grid
+        function initializeSkills() {
+            const categories = [
+                { id: 'programmingLanguages', data: skillsData.programming_languages },
+                { id: 'frontendFrameworks', data: skillsData.frontend_frameworks },
+                { id: 'backendFrameworks', data: skillsData.backend_frameworks },
+                { id: 'databases', data: skillsData.databases },
+                { id: 'cloudPlatforms', data: skillsData.cloud_platforms },
+                { id: 'devopsTools', data: skillsData.devops_tools },
+                { id: 'specializations', data: skillsData.specializations }
+            ];
+
+            categories.forEach(category => {
+                const container = document.getElementById(category.id);
+                category.data.forEach((skill, index) => {
+                    const skillId = `${category.id}_${index}`;
+                    const skillItem = document.createElement('div');
+                    skillItem.className = 'skill-item';
+                    skillItem.innerHTML = `
+                        <input type="checkbox" id="${skillId}" class="skill-checkbox" value="${skill}" onchange="toggleSkillProficiency('${skill}', this.checked)">
+                        <label for="${skillId}" class="skill-label">${skill}</label>
+                        <div class="proficiency-slider hidden" id="slider_${skill.replace(/[^a-zA-Z0-9]/g, '_')}">
+                            <label class="proficiency-label">Proficiency: <span class="proficiency-value">5</span>/10</label>
+                            <input type="range" min="1" max="10" value="5" class="slider" oninput="updateProficiency('${skill}', this.value)">
+                        </div>
+                    `;
+                    container.appendChild(skillItem);
+                });
+            });
+        }
+
+        // Toggle proficiency slider
+        function toggleSkillProficiency(skill, isChecked) {
+            const sliderId = `slider_${skill.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const sliderDiv = document.getElementById(sliderId);
+            
+            if (isChecked) {
+                sliderDiv.classList.remove('hidden');
+                const slider = sliderDiv.querySelector('input[type="range"]');
+                userSkills[skill] = parseInt(slider.value) / 10;
+            } else {
+                sliderDiv.classList.add('hidden');
+                delete userSkills[skill];
+            }
+        }
+
+        // Update proficiency value
+        function updateProficiency(skill, value) {
+            const sliderId = `slider_${skill.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const sliderDiv = document.getElementById(sliderId);
+            const valueSpan = sliderDiv.querySelector('.proficiency-value');
+            valueSpan.textContent = value;
+            userSkills[skill] = parseInt(value) / 10;
+        }
+
+        // Load example profile
+        function loadExampleProfile() {
+            // Clear existing selections
+            resetSelections();
+            
+            // Set example skills
+            Object.keys(exampleProfile).forEach(skill => {
+                const checkbox = Array.from(document.querySelectorAll('.skill-checkbox')).find(cb => cb.value === skill);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    const proficiency = Math.round(exampleProfile[skill] * 10);
+                    toggleSkillProficiency(skill, true);
+                    
+                    const sliderId = `slider_${skill.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                    const sliderDiv = document.getElementById(sliderId);
+                    const slider = sliderDiv.querySelector('input[type="range"]');
+                    const valueSpan = sliderDiv.querySelector('.proficiency-value');
+                    slider.value = proficiency;
+                    valueSpan.textContent = proficiency;
+                    userSkills[skill] = exampleProfile[skill];
+                }
+            });
+            
+            alert(`Example profile loaded with ${Object.keys(exampleProfile).length} skills!`);
+        }
+
+        // Get selected skills
+        function getSelectedSkills() {
+            return Object.keys(userSkills);
+        }
+
+        // Cosine similarity calculation
+        function cosineSimilarity(userVector, careerVector) {
+            let dotProduct = 0;
+            let userMagnitude = 0;
+            let careerMagnitude = 0;
+            
+            const allSkills = new Set([...Object.keys(userVector), ...Object.keys(careerVector)]);
+            
+            allSkills.forEach(skill => {
+                const userVal = userVector[skill] || 0;
+                const careerVal = careerVector[skill] || 0;
+                
+                dotProduct += userVal * careerVal;
+                userMagnitude += userVal * userVal;
+                careerMagnitude += careerVal * careerVal;
+            });
+            
+            userMagnitude = Math.sqrt(userMagnitude);
+            careerMagnitude = Math.sqrt(careerMagnitude);
+            
+            if (userMagnitude === 0 || careerMagnitude === 0) return 0;
+            
+            return dotProduct / (userMagnitude * careerMagnitude);
+        }
+
+        // Calculate compatibility score using cosine similarity
+        function calculateScore(careerName) {
+            if (Object.keys(userSkills).length === 0) return 0;
+            
+            const careerSkills = skillsMapping[careerName] || {};
+            const similarity = cosineSimilarity(userSkills, careerSkills);
+            
+            return Math.round(similarity * 100);
+        }
+
+        // Calculate career paths
+        function calculateCareerPaths() {
+            const selectedSkills = getSelectedSkills();
+            
+            if (selectedSkills.length === 0) {
+                alert('Please select at least one skill to analyze career paths.');
+                return;
+            }
+
+            // Calculate scores and sort
+            const results = careerPathsData.map(career => {
+                const score = calculateScore(career.name);
+                const careerSkillsMap = skillsMapping[career.name] || {};
+                const careerSkills = Object.keys(careerSkillsMap);
+                
+                const matchedSkills = selectedSkills.filter(skill => careerSkills.includes(skill));
+                const missingSkills = careerSkills.filter(skill => !selectedSkills.includes(skill))
+                    .sort((a, b) => (careerSkillsMap[b] || 0) - (careerSkillsMap[a] || 0))
+                    .slice(0, 10);
+                
+                return {
+                    ...career,
+                    score,
+                    matchedSkills,
+                    missingSkills
+                };
+            }).sort((a, b) => b.score - a.score);
+
+            displayResults(results, selectedSkills);
+        }
+
+        // Display results
+        function displayResults(results, selectedSkills) {
+            const resultsSection = document.getElementById('resultsSection');
+            const skillsSummary = document.getElementById('skillsSummary');
+            const careerCards = document.getElementById('careerCards');
+
+            resultsSection.classList.remove('hidden');
+            skillsSummary.innerHTML = `<p><strong>${selectedSkills.length} skills selected:</strong> ${selectedSkills.join(', ')}</p>`;
+
+            careerCards.innerHTML = '';
+
+            results.forEach((career, index) => {
+                const isTopMatch = index < 3;
+                const card = document.createElement('div');
+                card.className = `career-card ${isTopMatch ? 'top-match' : ''}`;
+                
+                const rankBadge = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                const matchColor = career.score > 40 ? 'var(--color-success)' : career.score >= 25 ? 'var(--color-warning)' : 'var(--color-error)';
+                
+                const missingSkillsHtml = career.missingSkills.length > 0
+                    ? `<div class="detail-section">
+                        <h4>🎯 Top Skills to Learn (by importance)</h4>
+                        <ul class="missing-skills-list">
+                            ${career.missingSkills.map(skill => `<li>${skill}</li>`).join('')}
+                        </ul>
+                    </div>`
+                    : '<div class="detail-section"><p style="color: var(--color-success); font-weight: var(--font-weight-medium);">✅ You have all key skills for this role!</p></div>';
+
+                card.innerHTML = `
+                    <div class="career-header">
+                        <div class="career-title-section">
+                            <span class="career-rank" style="background: ${matchColor};">${rankBadge} Rank ${index + 1}</span>
+                            <h3 class="career-name">${career.name}</h3>
+                            <p class="career-description">${career.description}</p>
+                        </div>
+                        <div class="score-display">
+                            <div class="score-percentage" style="color: ${matchColor};">${career.score}%</div>
+                            <div class="score-label">Compatibility</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${career.score}%; background: ${matchColor};"></div>
+                    </div>
+                    <div class="career-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">💰 Avg Salary</span>
+                            <span class="stat-value">$${career.avg_salary.toLocaleString()}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">📈 Job Growth</span>
+                            <span class="stat-value">${career.job_growth}%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">📊 Openings</span>
+                            <span class="stat-value">${(career.job_postings / 1000).toFixed(0)}K</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">💼 Median Salary</span>
+                            <span class="stat-value">$${career.median_salary.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div class="career-details">
+                        ${career.matchedSkills.length > 0 ? `
+                            <div class="detail-section">
+                                <h4>✅ Your Matching Skills (${career.matchedSkills.length})</h4>
+                                <div class="skill-tags">
+                                    ${career.matchedSkills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                                </div>
+                            </div>
+                        ` : '<div class="detail-section"><p style="color: var(--color-text-secondary);">No matching skills yet. Start learning to enter this field!</p></div>'}
+                        ${missingSkillsHtml}
+                        ${isTopMatch ? `<div class="detail-section">
+                            <button class="btn btn-secondary" style="width: 100%; margin-top: var(--space-8);" onclick="showDetailedAnalysis('${career.name}', ${index})">View Detailed Analysis</button>
+                        </div>` : ''}
+                    </div>
+                `;
+
+                careerCards.appendChild(card);
+            });
+
+            // Create visualizations
+            createSkillCoverageChart();
+            createSalaryComparisonChart(results.slice(0, 3));
+
+            // Scroll to results
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Show detailed career analysis
+        function showDetailedAnalysis(careerName, rank) {
+            const career = careerPathsData.find(c => c.name === careerName);
+            const careerSkills = skillsMapping[careerName] || {};
+            const selectedSkills = Object.keys(userSkills);
+            
+            const matchedSkills = selectedSkills.filter(skill => careerSkills[skill]);
+            const missingSkills = Object.keys(careerSkills)
+                .filter(skill => !selectedSkills.includes(skill))
+                .sort((a, b) => careerSkills[b] - careerSkills[a])
+                .slice(0, 10);
+            
+            const skillGapAnalysis = missingSkills.slice(0, 5).map(skill => ({
+                skill,
+                importance: careerSkills[skill],
+                impact: (careerSkills[skill] * 100).toFixed(0)
+            }));
+            
+            const modalHtml = `
+                <div class="modal-overlay" onclick="closeModal()">
+                    <div class="modal-content" onclick="event.stopPropagation()">
+                        <div class="modal-header">
+                            <h2>${rank === 0 ? '🥇' : rank === 1 ? '🥈' : '🥉'} ${careerName}</h2>
+                            <button class="modal-close" onclick="closeModal()">✕</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="detail-grid">
+                                <div class="detail-card">
+                                    <h4>💰 Compensation</h4>
+                                    <p><strong>Average Salary:</strong> $${career.avg_salary.toLocaleString()}/year</p>
+                                    <p><strong>Median Salary:</strong> $${career.median_salary.toLocaleString()}/year</p>
+                                </div>
+                                <div class="detail-card">
+                                    <h4>📊 Market Data</h4>
+                                    <p><strong>Job Growth:</strong> ${career.job_growth}% annually</p>
+                                    <p><strong>Market Saturation:</strong> ${(career.market_saturation * 100).toFixed(0)}%</p>
+                                    <p><strong>Job Postings:</strong> ${career.job_postings.toLocaleString()}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4>✅ Your Matched Skills (${matchedSkills.length})</h4>
+                                <div class="skill-tags">
+                                    ${matchedSkills.map(skill => `<span class="skill-tag">${skill} (${(userSkills[skill] * 10).toFixed(0)}/10)</span>`).join('')}
+                                </div>
+                            </div>
+                            
+                            ${missingSkills.length > 0 ? `
+                                <div class="detail-section">
+                                    <h4>🎯 Critical Skills to Learn</h4>
+                                    <ul class="missing-skills-list">
+                                        ${missingSkills.map(skill => `<li>${skill} - Importance: ${(careerSkills[skill] * 100).toFixed(0)}%</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : ''}
+                            
+                            ${skillGapAnalysis.length > 0 ? `
+                                <div class="detail-section">
+                                    <h4>📈 Skill Gap Analysis - Top 5 Most Impactful</h4>
+                                    <div class="skill-gap-bars">
+                                        ${skillGapAnalysis.map(item => `
+                                            <div class="gap-item">
+                                                <div class="gap-label">${item.skill}</div>
+                                                <div class="gap-bar-container">
+                                                    <div class="gap-bar" style="width: ${item.impact}%;"></div>
+                                                    <span class="gap-value">${item.impact}%</span>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="detail-section">
+                                <h4>📚 Learning Resources</h4>
+                                <div class="resource-links">
+                                    <a href="https://www.udemy.com/courses/search/?q=${encodeURIComponent(careerName)}" target="_blank" class="resource-link">🎓 Udemy Courses</a>
+                                    <a href="https://www.freecodecamp.org/" target="_blank" class="resource-link">💻 freeCodeCamp</a>
+                                    <a href="https://www.coursera.org/search?query=${encodeURIComponent(careerName)}" target="_blank" class="resource-link">🎯 Coursera</a>
+                                    <a href="https://roadmap.sh/" target="_blank" class="resource-link">🗺️ Developer Roadmaps</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function closeModal() {
+            const modal = document.querySelector('.modal-overlay');
+            if (modal) modal.remove();
+        }
+
+        // Create skill coverage radar chart
+        function createSkillCoverageChart() {
+            const categories = {
+                'Programming Languages': 0,
+                'Frontend Frameworks': 0,
+                'Backend Frameworks': 0,
+                'Databases': 0,
+                'Cloud Platforms': 0,
+                'DevOps Tools': 0,
+                'Specializations': 0
+            };
+            
+            const categoryCounts = {...categories};
+            
+            Object.keys(userSkills).forEach(skill => {
+                for (const [catName, catKey] of Object.entries(categoryMapping)) {
+                    if (skillsData[catKey].includes(skill)) {
+                        categories[catName] += userSkills[skill];
+                        categoryCounts[catName]++;
+                    }
+                }
+            });
+            
+            // Calculate percentages
+            const labels = Object.keys(categories);
+            const data = labels.map(label => {
+                const count = categoryCounts[label];
+                const total = skillsData[categoryMapping[label]].length;
+                return count > 0 ? (count / total) * 100 : 0;
+            });
+            
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            chartContainer.innerHTML = '<canvas id="skillRadarChart"></canvas>';
+            
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.insertBefore(chartContainer, document.getElementById('careerCards'));
+            
+            const ctx = document.getElementById('skillRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Skill Coverage %',
+                        data: data,
+                        backgroundColor: 'rgba(33, 128, 141, 0.2)',
+                        borderColor: 'rgba(33, 128, 141, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(33, 128, 141, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(33, 128, 141, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Your Skill Coverage Across Categories',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create salary comparison chart
+        function createSalaryComparisonChart(topCareers) {
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'chart-container';
+            chartContainer.innerHTML = '<canvas id="salaryChart"></canvas>';
+            
+            const careerCards = document.getElementById('careerCards');
+            careerCards.parentNode.insertBefore(chartContainer, careerCards);
+            
+            const labels = topCareers.map(c => c.name);
+            const avgSalaries = topCareers.map(c => c.avg_salary);
+            const medianSalaries = topCareers.map(c => c.median_salary);
+            
+            const ctx = document.getElementById('salaryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Average Salary',
+                            data: avgSalaries,
+                            backgroundColor: 'rgba(33, 128, 141, 0.8)',
+                            borderColor: 'rgba(33, 128, 141, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Median Salary',
+                            data: medianSalaries,
+                            backgroundColor: 'rgba(168, 75, 47, 0.8)',
+                            borderColor: 'rgba(168, 75, 47, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Top 3 Career Paths - Salary Comparison',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display learning pathway
+        function displayLearningPathway(topCareer) {
+            const pathwaySection = document.getElementById('learningPathway');
+            pathwaySection.classList.remove('hidden');
+
+            const prioritySkills = [...topCareer.missingSkills.slice(0, 3), ...topCareer.missingSkillsExamples.slice(0, 2)];
+            
+            const steps = [
+                {
+                    title: 'Foundation Building',
+                    description: prioritySkills[0] ? `Start with ${prioritySkills[0]} as it's fundamental for ${topCareer.name}` : 'Build on your existing skills'
+                },
+                {
+                    title: 'Intermediate Skills',
+                    description: prioritySkills[1] ? `Learn ${prioritySkills[1]} to expand your capabilities` : 'Practice with real projects'
+                },
+                {
+                    title: 'Advanced Concepts',
+                    description: prioritySkills[2] ? `Master ${prioritySkills[2]} for professional-level work` : 'Contribute to open source'
+                },
+                {
+                    title: 'Portfolio Development',
+                    description: 'Build 3-5 projects showcasing your skills and deploy them'
+                },
+                {
+                    title: 'Career Launch',
+                    description: 'Apply for roles, contribute to open source, and network with professionals'
+                }
+            ];
+
+            pathwaySection.innerHTML = `
+                <h3 class="section-title">📚 Your Learning Pathway for ${topCareer.name}</h3>
+                <div class="pathway-steps">
+                    ${steps.map((step, index) => `
+                        <div class="pathway-step">
+                            <div class="step-number">${index + 1}</div>
+                            <div class="step-content">
+                                <h5>${step.title}</h5>
+                                <p>${step.description}</p>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Reset selections
+        function resetSelections() {
+            const checkboxes = document.querySelectorAll('.skill-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                const skill = cb.value;
+                const sliderId = `slider_${skill.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                const sliderDiv = document.getElementById(sliderId);
+                if (sliderDiv) {
+                    sliderDiv.classList.add('hidden');
+                    const slider = sliderDiv.querySelector('input[type="range"]');
+                    const valueSpan = sliderDiv.querySelector('.proficiency-value');
+                    slider.value = 5;
+                    valueSpan.textContent = '5';
+                }
+            });
+            userSkills = {};
+            document.getElementById('resultsSection').classList.add('hidden');
+            
+            // Remove charts
+            const charts = document.querySelectorAll('.chart-container');
+            charts.forEach(chart => chart.remove());
+        }
+
+        // Export results as CSV
+        function exportResults() {
+            const selectedSkills = getSelectedSkills();
+            if (selectedSkills.length === 0) {
+                alert('Please analyze your career paths first.');
+                return;
+            }
+
+            const results = careerPathsData.map(career => ({
+                name: career.name,
+                score: calculateScore(career.name),
+                salary: career.avg_salary,
+                growth: career.job_growth,
+                openings: career.job_postings
+            })).sort((a, b) => b.score - a.score);
+
+            // Create CSV content
+            let csvContent = 'Career Path,Compatibility Score,Average Salary,Job Growth %,Job Postings\n';
+            results.forEach(career => {
+                csvContent += `"${career.name}",${career.score}%,$${career.salary},${career.growth}%,${career.openings}\n`;
+            });
+            
+            csvContent += '\n\nYour Skills\n';
+            csvContent += 'Skill,Proficiency (0-1)\n';
+            Object.keys(userSkills).forEach(skill => {
+                csvContent += `"${skill}",${userSkills[skill].toFixed(2)}\n`;
+            });
+
+            // Create download
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `career-analysis-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('Results exported successfully!');
+        }
+
+        // Initialize on load
+        initializeSkills();
+    </script>
+</body>
+</html>
